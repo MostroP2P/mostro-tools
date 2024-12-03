@@ -1,44 +1,86 @@
-# mostro-tools
+### **Updated README for `@mostrop2p/mostro-tools`**
 
-Tools for developing Mostro clients.
+---
 
-This package is only providing lower-level functionality.
+# @mostrop2p/mostro-tools
 
-## Roadmap
+**Tools for developing Mostro clients**
 
-### Mostro Core Implementation
+`@mostrop2p/mostro-tools` is a lightweight and extensible library designed to simplify the development of Mostro clients. It provides low-level functionality for interacting with the Mostro protocol, including order management, messaging, dispute resolution, and more.
 
-Implementation of core functionality in TypeScript/JavaScript. See [mostro-core](https://github.com/MostroP2P/mostro-core).
+This library is ideal for developers building decentralized peer-to-peer Bitcoin trading platforms powered by the [Mostro protocol](https://mostro.network/).
 
-#### Core Functions:
+---
 
-- `dispute.ts` - Handles dispute resolution logic
-- `lib.ts` - Core library utilities
-- `message.ts` - Message handling functionality
-- `order.ts` - Order management system
-- `rating.ts` - User rating implementation
-- `user.ts` - User management functionality
+## **Features**
+- **Core Protocol Support**: Implements fundamental Mostro operations such as order creation, dispute handling, and messaging.
+- **Flexible Client Integration**: Designed for easy integration with relays and Mostro-compatible clients.
+- **Secure Key Management**: Supports NIP-06 and NIP-59 for deterministic key generation and privacy-focused operations.
+- **Customizable Configurations**: Offers private mode and advanced options for reputation handling.
+- **Developer-Friendly**: Written in TypeScript with comprehensive type definitions and modular architecture.
 
-### Client Implementation
+---
 
-Implementation of core functionality in TypeScript/JavaScript. See [mostro-core](https://github.com/MostroP2P/mostro-cli).
+## **Installation**
 
-#### Client Functions:
+Using [pnpm](https://pnpm.io/):
 
-- `listorders` -Requests open orders from Mostro pubkey
-- `neworder` -Create a new buy/sell order on Mostro
-- `takesell` -Take a sell order from a Mostro pubkey
-- `takebuy ` -Take a buy order from a Mostro pubkey
-- `addinvoice` -Buyer add a new invoice to receive the payment
-- `getdm ` -Get the latest direct messages from Mostro
-- `fiatsent` -Send fiat sent message to confirm payment to other user
-- `release ` -Settle the hold invoice and pay to buyer
-- `cancel` -Cancel a pending order
-- `rate` -Rate counterpart after a successful trade
-- `dispute` -Start a dispute
-- `admcancel` -Cancel an order (only admin)
-- `admsettle` - Settle a seller's hold invoice (only admin)
-- `admlistdisputes` -Requests open disputes from Mostro pubkey
-- `admaddsolver` - Add a new dispute's solver (only admin)
-- `admtakedispute` - Admin or solver take a Pending dispute (only admin)
-- `help` -Print this message or the help of the given subcommand(s)
+```bash
+pnpm install @mostrop2p/mostro-tools
+```
+
+---
+
+## **Roadmap**
+
+### **Core Implementation**
+Development of foundational modules to enable Mostro protocol interactions:
+- **Key Management**: Deterministic key generation (NIP-06) and rotation (NIP-59).
+- **Order Management**: Create, list, take, and cancel orders.
+- **Messaging**: Handle direct messages, confirmations, and encrypted communication.
+- **Dispute Resolution**: Initiate and manage disputes.
+- **Reputation Handling**: Implement rating and reputation updates.
+
+---
+
+### **Client Features**
+Expand library capabilities with client-side utilities:
+- **Order Functions**:
+  - List open orders (`listorders`).
+  - Create new buy/sell orders (`neworder`).
+  - Take orders (`takesell`, `takebuy`).
+  - Cancel pending orders (`cancel`).
+- **Messaging Functions**:
+  - Add invoices (`addinvoice`).
+  - Confirm fiat payments (`fiatsent`).
+  - Settle transactions (`release`).
+- **Administrative Tools**:
+  - Cancel orders as admin (`admcancel`).
+  - Resolve disputes as admin (`admsettle`).
+- **Privacy Features**:
+  - Private mode to ensure full anonymity without affecting usability.
+
+---
+
+## **Goals**
+1. **Ease of Use**: Abstract complexities of the Mostro protocol, providing simple and intuitive APIs.
+2. **Security First**: Adhere to best practices for cryptographic operations and data integrity.
+3. **Scalability**: Design with modularity and extensibility to support future protocol updates.
+4. **Community Support**: Enable seamless contribution through clear documentation and developer tools.
+
+---
+
+## **Get Involved**
+
+- **Website**: [mostro.network](https://mostro.network/)
+- **Report Issues**: [GitHub Issues](https://github.com/MostroP2P/mostro-tools/issues)
+- **Contribute**: Contributions are welcome! Follow the [Contribution Guidelines](https://github.com/MostroP2P/mostro-tools).
+
+---
+
+## **License**
+`@mostrop2p/mostro-tools` is licensed under the MIT License. See the [LICENSE](https://github.com/MostroP2P/mostro-tools/blob/main/LICENSE) file for details.
+
+---
+
+This updated README provides a polished introduction, highlights key features, and sets clear expectations for potential users and contributors. Let me know if you'd like additional sections or modifications!
