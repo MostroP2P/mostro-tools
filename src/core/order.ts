@@ -1,29 +1,8 @@
-import type { Order } from '../types/core/order.ts';
+import type { Order } from '../types/core/order';
 import { finalizeEvent } from 'nostr-tools';
-import { OrderStatus, OrderType } from '../types/core/order.ts';
-import { createGiftWrapEvent, GiftWrapContent } from '../utils/nostr.ts';
-
-/**
- * Validates and ensures that the required fields for an order are valid.
- * @param order The partial order object to validate.
- */
-function validateOrder(order: Partial<Order>) {
-  if (!order.amount || order.amount <= 0) {
-    throw new Error('Order amount must be greater than zero.');
-  }
-
-  if (!order.fiat_code || typeof order.fiat_code !== 'string') {
-    throw new Error('Order must have a valid fiat_code.');
-  }
-
-  if (!order.payment_method || typeof order.payment_method !== 'string') {
-    throw new Error('Order must have a valid payment_method.');
-  }
-
-  if (order.premium && (order.premium < 0 || order.premium > 100)) {
-    throw new Error('Order premium must be between 0 and 100.');
-  }
-}
+import { OrderStatus, OrderType } from '../types/core/order';
+import { createGiftWrapEvent, GiftWrapContent } from '../utils/nostr';
+import { validateOrder, isValidOrderType } from '../utils/validation';
 
 /**
  * Create a new NIP-59 wrapped order event for Mostro.
@@ -35,10 +14,14 @@ function validateOrder(order: Partial<Order>) {
 export function createOrder(
   order: Partial<Order>,
   senderPrivateKey: Uint8Array,
-  recipientPublicKey: string,
+  recipientPublicKey: string
 ) {
   // Validate the order details
   validateOrder(order);
+
+  if (!isValidOrderType(order.kind || OrderType.BUY)) {
+    throw new Error('Invalid order type.');
+  }
 
   // Ensure required fields for an order are present
   const newOrder: Partial<Order> = {
@@ -59,7 +42,7 @@ export function createOrder(
       ['fiat_code', newOrder.fiat_code || ''],
       ['kind', newOrder.kind || ''],
       ['payment_method', newOrder.payment_method || ''],
-    ].filter(tag => tag.every(value => value !== undefined)), // Remove undefined values
+    ].filter((tag) => tag.every((value) => value !== undefined)), // Remove undefined values
     content: JSON.stringify(newOrder),
   };
 
@@ -72,4 +55,24 @@ export function createOrder(
     senderPrivateKey,
     recipientPublicKey
   );
+}
+
+/**
+ * Parse a Nostr event into an Order object.
+ * @param event The Nostr event to parse.
+ * @returns The parsed Order object or null if parsing fails.
+ */
+export function parseOrder(event: Event): Order | null {
+  try {
+    const content = JSON.parse(event.content);
+    return {
+      ...content,
+      id: event.id,
+      created_at: event.created_at,
+      event_id: event.id,
+    } as Order;
+  } catch (error) {
+    console.error('Failed to parse order:', error);
+    return null;
+  }
 }
