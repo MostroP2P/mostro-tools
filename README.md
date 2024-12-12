@@ -1,10 +1,6 @@
-### **Updated README for `@mostrop2p/mostro-tools`**
-
----
-
 # @mostrop2p/mostro-tools
 
-**Tools for developing Mostro clients**
+##Tools for developing Mostro clients
 
 `@mostrop2p/mostro-tools` is a lightweight and extensible library designed to simplify the development of Mostro clients. It provides low-level functionality for interacting with the Mostro protocol, including order management, messaging, dispute resolution, and more.
 
@@ -13,6 +9,7 @@ This library is ideal for developers building decentralized peer-to-peer Bitcoin
 ---
 
 ## **Features**
+
 - **Core Protocol Support**: Implements fundamental Mostro operations such as order creation, dispute handling, and messaging.
 - **Flexible Client Integration**: Designed for easy integration with relays and Mostro-compatible clients.
 - **Secure Key Management**: Supports NIP-06 and NIP-59 for deterministic key generation and privacy-focused operations.
@@ -34,7 +31,9 @@ pnpm install @mostrop2p/mostro-tools
 ## **Roadmap**
 
 ### **Core Implementation**
+
 Development of foundational modules to enable Mostro protocol interactions:
+
 - **Key Management**: Deterministic key generation (NIP-06) and rotation (NIP-59).
 - **Order Management**: Create, list, take, and cancel orders.
 - **Messaging**: Handle direct messages, confirmations, and encrypted communication.
@@ -44,7 +43,9 @@ Development of foundational modules to enable Mostro protocol interactions:
 ---
 
 ### **Client Features**
+
 Expand library capabilities with client-side utilities:
+
 - **Order Functions**:
   - List open orders (`listorders`).
   - Create new buy/sell orders (`neworder`).
@@ -63,6 +64,7 @@ Expand library capabilities with client-side utilities:
 ---
 
 ## **Goals**
+
 1. **Ease of Use**: Abstract complexities of the Mostro protocol, providing simple and intuitive APIs.
 2. **Security First**: Adhere to best practices for cryptographic operations and data integrity.
 3. **Scalability**: Design with modularity and extensibility to support future protocol updates.
@@ -79,8 +81,5 @@ Expand library capabilities with client-side utilities:
 ---
 
 ## **License**
+
 `@mostrop2p/mostro-tools` is licensed under the MIT License. See the [LICENSE](https://github.com/MostroP2P/mostro-tools/blob/main/LICENSE) file for details.
-
----
-
-This updated README provides a polished introduction, highlights key features, and sets clear expectations for potential users and contributors. Let me know if you'd like additional sections or modifications!

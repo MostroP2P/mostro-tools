@@ -35,9 +35,7 @@ export interface Rating {
  * @returns number - Average rating between min_rate and max_rate, or 0 if no reviews
  */
 export function calculateAverageRating(rating: Rating): number {
-  return rating.total_reviews > 0
-    ? rating.total_rating / rating.total_reviews
-    : 0;
+  return rating.total_reviews > 0 ? rating.total_rating / rating.total_reviews : 0;
 }
 
 /**

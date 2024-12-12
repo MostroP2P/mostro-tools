@@ -1,4 +1,4 @@
-import { nip44 } from 'nostr-tools'
+import { nip44 } from 'nostr-tools';
 
 /**
  * Derive a shared conversation key using NIP-44.
@@ -7,7 +7,7 @@ import { nip44 } from 'nostr-tools'
  * @returns The derived conversation key
  */
 export function deriveConversationKey(privateKey: Uint8Array, publicKey: string): Uint8Array {
-  return nip44.getConversationKey(privateKey, publicKey)
+  return nip44.getConversationKey(privateKey, publicKey);
 }
 
 /**
@@ -18,8 +18,8 @@ export function deriveConversationKey(privateKey: Uint8Array, publicKey: string)
  * @returns The encrypted message as a Base64 string
  */
 export function encryptMessage(plaintext: string, privateKey: Uint8Array, publicKey: string): string {
-  const conversationKey = deriveConversationKey(privateKey, publicKey)
-  return nip44.encrypt(plaintext, conversationKey)
+  const conversationKey = deriveConversationKey(privateKey, publicKey);
+  return nip44.encrypt(plaintext, conversationKey);
 }
 
 /**
@@ -30,6 +30,6 @@ export function encryptMessage(plaintext: string, privateKey: Uint8Array, public
  * @returns The decrypted plaintext
  */
 export function decryptMessage(encryptedMessage: string, privateKey: Uint8Array, senderPublicKey: string): string {
-  const conversationKey = deriveConversationKey(privateKey, senderPublicKey)
-  return nip44.decrypt(encryptedMessage, conversationKey)
+  const conversationKey = deriveConversationKey(privateKey, senderPublicKey);
+  return nip44.decrypt(encryptedMessage, conversationKey);
 }

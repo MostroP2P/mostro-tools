@@ -105,8 +105,5 @@ type OrderActions =
   | Action.CooperativeCancelInitiatedByYou
   | Action.CooperativeCancelInitiatedByPeer
   | Action.CooperativeCancelAccepted;
-type DisputeActions =
-  | Action.Dispute
-  | Action.DisputeInitiatedByYou
-  | Action.DisputeInitiatedByPeer;
+type DisputeActions = Action.Dispute | Action.DisputeInitiatedByYou | Action.DisputeInitiatedByPeer;
 type RatingActions = Action.Rate | Action.RateUser | Action.RateReceived;

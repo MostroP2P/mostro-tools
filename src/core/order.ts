@@ -32,11 +32,7 @@ function validateOrder(order: Partial<Order>) {
  * @param recipientPublicKey The public key of the recipient (e.g., Mostro's pubkey).
  * @returns The wrapped Nostr event using NIP-59.
  */
-export function createOrder(
-  order: Partial<Order>,
-  senderPrivateKey: Uint8Array,
-  recipientPublicKey: string,
-) {
+export function createOrder(order: Partial<Order>, senderPrivateKey: Uint8Array, recipientPublicKey: string) {
   // Validate the order details
   validateOrder(order);
 
@@ -59,7 +55,7 @@ export function createOrder(
       ['fiat_code', newOrder.fiat_code || ''],
       ['kind', newOrder.kind || ''],
       ['payment_method', newOrder.payment_method || ''],
-    ].filter(tag => tag.every(value => value !== undefined)), // Remove undefined values
+    ].filter((tag) => tag.every((value) => value !== undefined)), // Remove undefined values
     content: JSON.stringify(newOrder),
   };
 
@@ -70,6 +66,6 @@ export function createOrder(
   return createGiftWrapEvent(
     JSON.parse(JSON.stringify(plainEvent)) as GiftWrapContent,
     senderPrivateKey,
-    recipientPublicKey
+    recipientPublicKey,
   );
 }
