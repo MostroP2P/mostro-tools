@@ -1,6 +1,6 @@
-import type { Order } from '../types/core/order.ts'
-import { createOrder } from '../core/order.ts'
-import { publishEvent } from '../utils/nostr.ts'
+import type { Order } from '../types/core/order.ts';
+import { createOrder } from '../core/order.ts';
+import { publishEvent } from '../utils/nostr.ts';
 
 /**
  * Create and publish a new order.
@@ -17,10 +17,10 @@ export async function newOrder(
   relayUrl: string,
 ): Promise<NostrEvent> {
   // Create the order event
-  const event = createOrder(order, privateKey, recipientPublicKey)
+  const event = createOrder(order, privateKey, recipientPublicKey);
 
   // Publish the event to the relay
-  await publishEvent(event, relayUrl)
+  await publishEvent(event, relayUrl);
 
-  return event
+  return event;
 }

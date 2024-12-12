@@ -17,22 +17,28 @@ If you're looking for somewhere to start contributing, check out the [good first
 
 1. Fork the repository
 2. Create a topic branch from the `main` branch
+
    ```bash
    git checkout -b feat/new-feature
    # or
    git checkout -b fix/some-bug
    ```
+
 3. Make your changes
 4. Write tests for your changes
 5. Run tests and ensure all pass
+
    ```bash
    npm run test
    ```
+
 6. Run linting and type checking
+
    ```bash
    npm run lint
    npm run type-check
    ```
+
 7. Commit your changes with a clear message
 8. Submit a pull request
 
@@ -88,7 +94,7 @@ npm run format
 
 ### Commit Message Format
 
-```
+```bash
 <type>(<scope>): <subject>
 
 <body>
@@ -136,6 +142,7 @@ We follow a review process similar to Bitcoin Core:
    ```
 
 4. Run tests:
+
    ```bash
    npm test
    ```

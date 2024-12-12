@@ -53,9 +53,9 @@ describe('createOrder with NIP-59', () => {
       payment_method: 'PayPal',
     };
 
-    expect(() =>
-      createOrder(order, senderPrivateKey, invalidRecipientPublicKey),
-    ).toThrowError('Invalid recipient public key format');
+    expect(() => createOrder(order, senderPrivateKey, invalidRecipientPublicKey)).toThrowError(
+      'Invalid recipient public key format',
+    );
   });
 
   it('should throw an error for missing required fields', () => {
@@ -66,9 +66,9 @@ describe('createOrder with NIP-59', () => {
       fiat_code: 'USD',
     };
 
-    expect(() =>
-      createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey),
-    ).toThrowError('Order amount must be greater than zero');
+    expect(() => createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey)).toThrowError(
+      'Order amount must be greater than zero',
+    );
   });
 
   it('should create an order with minimum valid inputs', () => {
@@ -111,8 +111,8 @@ describe('createOrder with NIP-59', () => {
       premium: 110, // Invalid premium value
     };
 
-    expect(() =>
-      createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey),
-    ).toThrowError('Order premium must be between 0 and 100');
+    expect(() => createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey)).toThrowError(
+      'Order premium must be between 0 and 100',
+    );
   });
 });

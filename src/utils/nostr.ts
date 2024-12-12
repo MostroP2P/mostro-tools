@@ -20,7 +20,7 @@ export async function publishEvent(event: Event, relayUrl: string): Promise<void
   try {
     const results = await Promise.all(pool.publish([relayUrl], event));
 
-    const success = results.every(result => result === 'ok');
+    const success = results.every((result) => result === 'ok');
     if (success) {
       console.log(`Event successfully published to ${relayUrl}`);
     } else {
@@ -44,7 +44,7 @@ export async function publishEvent(event: Event, relayUrl: string): Promise<void
 export function createGiftWrapEvent(
   content: GiftWrapContent,
   senderPrivateKey: Uint8Array,
-  recipientPublicKey: string
+  recipientPublicKey: string,
 ): Event {
   if (!content || Object.keys(content).length === 0) {
     throw new Error('Content cannot be empty');
@@ -74,10 +74,7 @@ export function createGiftWrapEvent(
  * @param recipientPrivateKey Recipient's private key.
  * @returns The unwrapped rumor as GiftWrapContent.
  */
-export function unwrapGiftWrapEvent(
-  wrappedEvent: Event,
-  recipientPrivateKey: Uint8Array
-): GiftWrapContent {
+export function unwrapGiftWrapEvent(wrappedEvent: Event, recipientPrivateKey: Uint8Array): GiftWrapContent {
   if (!wrappedEvent || wrappedEvent.kind !== 1059) {
     throw new Error('Invalid wrapped event format');
   }
@@ -101,10 +98,7 @@ export function unwrapGiftWrapEvent(
  * @param recipientPrivateKey Recipient's private key.
  * @returns An array of unwrap results.
  */
-export function unwrapMultipleGiftWrapEvents(
-  wrappedEvents: Event[],
-  recipientPrivateKey: Uint8Array
-): UnwrapResult[] {
+export function unwrapMultipleGiftWrapEvents(wrappedEvents: Event[], recipientPrivateKey: Uint8Array): UnwrapResult[] {
   if (!Array.isArray(wrappedEvents)) {
     throw new Error('wrappedEvents must be an array');
   }
@@ -112,7 +106,7 @@ export function unwrapMultipleGiftWrapEvents(
     throw new Error('Invalid recipient private key length');
   }
 
-  return wrappedEvents.map(event => {
+  return wrappedEvents.map((event) => {
     try {
       return {
         success: true,
