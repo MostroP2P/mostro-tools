@@ -80,7 +80,3 @@ Expand library capabilities with client-side utilities:
 
 ## **License**
 `@mostrop2p/mostro-tools` is licensed under the MIT License. See the [LICENSE](https://github.com/MostroP2P/mostro-tools/blob/main/LICENSE) file for details.
-
----
-
-This updated README provides a polished introduction, highlights key features, and sets clear expectations for potential users and contributors. Let me know if you'd like additional sections or modifications!
