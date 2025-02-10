@@ -13,7 +13,6 @@ export interface EncryptionKeys {
 }
 
 export class CryptoUtils {
-
   static generateKeyPair(): KeyPair {
     const privateKey = generateSecretKey();
     return {
@@ -23,7 +22,7 @@ export class CryptoUtils {
   }
 
   static encodeKey(key: string, type: 'pub' | 'sec'): string {
-    return type === 'pub' ? nip19.npubEncode(key) : nip19.nsecEncode(hexToBytes(key));;
+    return type === 'pub' ? nip19.npubEncode(key) : nip19.nsecEncode(hexToBytes(key));
   }
 
   static deriveConversationKey(privateKey: string, publicKey: string): Uint8Array {
@@ -40,5 +39,4 @@ export class CryptoUtils {
     const conversationKey = this.deriveConversationKey(privateKey, publicKey);
     return nip44.v2.decrypt(ciphertext, conversationKey);
   }
-
 }
