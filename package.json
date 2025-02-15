@@ -108,6 +108,7 @@
     "bip39": "^3.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "nostr-tools": "^2.10.3",
-    "tiny-secp256k1": "^2.2.3"
+    "tiny-secp256k1": "^2.2.3",
+    "uuid": "^11.0.5"
   }
 }

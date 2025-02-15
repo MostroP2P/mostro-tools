@@ -44,6 +44,9 @@ importers:
       tiny-secp256k1:
         specifier: ^2.2.3
         version: 2.2.3
+      uuid:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
       '@mostrop2p/mostro-tools':
         specifier: 'link:'
@@ -2776,6 +2779,10 @@ packages:
   utf8-buffer@1.0.0:
     resolution: {integrity: sha512-ueuhzvWnp5JU5CiGSY4WdKbiN/PO2AZ/lpeLiz2l38qwdLy/cW40XobgyuIWucNyum0B33bVB0owjFCeGBSLqg==, tarball: https://registry.npmjs.org/utf8-buffer/-/utf8-buffer-1.0.0.tgz}
     engines: {node: '>=8'}
+
+  uuid@11.0.5:
+    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==, tarball: https://registry.npmjs.org/uuid/-/uuid-11.0.5.tgz}
+    hasBin: true
 
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==, tarball: https://registry.npmjs.org/v8-to-istanbul/-/v8-to-istanbul-9.3.0.tgz}
@@ -5960,6 +5967,8 @@ snapshots:
       node-gyp-build: 4.8.4
 
   utf8-buffer@1.0.0: {}
+
+  uuid@11.0.5: {}
 
   v8-to-istanbul@9.3.0:
     dependencies:

@@ -1,5 +1,6 @@
 import { nip44, nip19, getPublicKey, generateSecretKey } from 'nostr-tools';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface KeyPair {
   privateKey: string;
@@ -19,6 +20,9 @@ export class CryptoUtils {
       privateKey: bytesToHex(privateKey),
       publicKey: getPublicKey(privateKey),
     };
+  }
+  static generateId(): string {
+    return uuidv4();
   }
 
   static encodeKey(key: string, type: 'pub' | 'sec'): string {
