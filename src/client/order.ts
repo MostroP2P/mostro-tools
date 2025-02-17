@@ -5,7 +5,7 @@ import { CryptoUtils } from '../utils/crypto';
 export class OrderManager {
   constructor(
     private keyManager: KeyManager,
-    private debug: boolean = false
+    private debug: boolean = false,
   ) {}
 
   async createOrder(orderData: NewOrder): Promise<Order> {
@@ -21,27 +21,23 @@ export class OrderManager {
       ...orderData,
       id: orderId,
       expires_at: this.calculateExpiration(orderData.created_at),
-      trade_index: this.keyManager.getNextKeyIndex()
+      trade_index: this.keyManager.getNextKeyIndex(),
     };
 
     // Set appropriate pubkey based on order type
     if (order.kind === OrderType.BUY) {
       order.buyer_pubkey = tradePubKey;
-      order.master_buyer_pubkey = this.keyManager.getPublicKeyFromPrivate(
-        this.keyManager.getIdentityKey()!
-      );
+      order.master_buyer_pubkey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
     } else {
       order.seller_pubkey = tradePubKey;
-      order.master_seller_pubkey = this.keyManager.getPublicKeyFromPrivate(
-        this.keyManager.getIdentityKey()!
-      );
+      order.master_seller_pubkey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
     }
 
     if (this.debug) {
       console.log('Created order:', {
         orderId,
         tradeIndex: order.trade_index,
-        tradePubKey
+        tradePubKey,
       });
     }
 
@@ -50,7 +46,7 @@ export class OrderManager {
 
   private calculateExpiration(createdAt: number): number {
     // Default 24 hour expiration
-    return createdAt + (24 * 60 * 60);
+    return createdAt + 24 * 60 * 60;
   }
 
   async takeOrder(existingOrder: Order): Promise<Order> {
@@ -60,9 +56,7 @@ export class OrderManager {
 
     const tradeKey = await this.keyManager.generateTradeKey(existingOrder.id);
     const tradePubKey = this.keyManager.getPublicKeyFromPrivate(tradeKey);
-    const identityPubKey = this.keyManager.getPublicKeyFromPrivate(
-      this.keyManager.getIdentityKey()!
-    );
+    const identityPubKey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
 
     // Update order with taker's keys
     if (existingOrder.kind === OrderType.SELL) {
@@ -79,7 +73,7 @@ export class OrderManager {
       console.log('Taking order:', {
         orderId: existingOrder.id,
         tradeIndex: existingOrder.trade_index,
-        tradePubKey
+        tradePubKey,
       });
     }
 
