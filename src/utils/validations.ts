@@ -1,7 +1,10 @@
 import { Order } from '../types/core/order';
 
 export class ValidationError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string,
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -24,7 +27,10 @@ export function validateAmountConstraints(order: Partial<Order>): void {
 export function validateMarketPriceOrder(order: Partial<Order>): void {
   if (order.amount === 0 && !order.min_amount && !order.max_amount) {
     if (order.premium === 0 && order.fiat_amount === 0) {
-      throw new ValidationError('Market price orders must specify either premium or fiat amount', 'INVALID_MARKET_PRICE');
+      throw new ValidationError(
+        'Market price orders must specify either premium or fiat amount',
+        'INVALID_MARKET_PRICE',
+      );
     }
   }
 }
