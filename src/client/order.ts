@@ -20,7 +20,9 @@ export class OrderManager {
     const order: Order = {
       ...orderData,
       id: orderId,
-      expires_at: this.calculateExpiration(orderData.created_at),
+      amount: orderData.amount || 0,
+      created_at: Date.now(),
+      expires_at: this.calculateExpiration(Date.now()),
       trade_index: this.keyManager.getNextKeyIndex(),
     };
 
