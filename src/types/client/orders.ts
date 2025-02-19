@@ -1,4 +1,4 @@
-import type { Order } from '@/types/core/index.ts';
+import type { Order } from '../core/index';
 
 export interface OrderFunctions {
   listorders: () => Promise<Order[]>;
