@@ -22,7 +22,7 @@ describe('KeyManager', () => {
     it('should throw error when initializing twice', async () => {
       await keyManager.initialize(testMnemonic);
       await expect(keyManager.initialize(testMnemonic)).rejects.toThrow(
-        new KeyManagerError('KeyManager already initialized', 'ALREADY_INITIALIZED')
+        new KeyManagerError('KeyManager already initialized', 'ALREADY_INITIALIZED'),
       );
     });
 

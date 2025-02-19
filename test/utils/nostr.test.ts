@@ -54,7 +54,7 @@ describe('Nostr', () => {
       nostr.emit = mockEmit;
 
       // Trigger the connect event
-      const connectCallback = mockOn.mock.calls.find(call => call[0] === 'connect')[1];
+      const connectCallback = mockOn.mock.calls.find((call) => call[0] === 'connect')[1];
       connectCallback();
 
       expect(mockEmit).toHaveBeenCalledWith('ready');
@@ -83,7 +83,7 @@ describe('Nostr', () => {
           authors: [mockPublicKey],
           since: expect.any(Number),
         },
-        { closeOnEose: false }
+        { closeOnEose: false },
       );
       expect(subscription).toBeDefined();
     });
@@ -107,7 +107,7 @@ describe('Nostr', () => {
       nostr.subscribeOrders(mockPublicKey);
 
       // Find and execute the event callback
-      const eventCallback = mockOn.mock.calls.find(call => call[0] === 'event')[1];
+      const eventCallback = mockOn.mock.calls.find((call) => call[0] === 'event')[1];
       eventCallback(mockEvent);
 
       expect(mockEmit).toHaveBeenCalledWith('public-message', mockEvent);
@@ -125,11 +125,7 @@ describe('Nostr', () => {
         content: 'test content',
       };
 
-      const giftWrap = nostr.createGiftWrapEvent(
-        content,
-        mockPrivateKey,
-        mockPublicKey
-      );
+      const giftWrap = nostr.createGiftWrapEvent(content, mockPrivateKey, mockPublicKey);
 
       expect(giftWrap.kind).toBe(1059);
       expect(giftWrap.tags).toContainEqual(['p', mockPublicKey]);
@@ -212,25 +208,24 @@ describe('Nostr', () => {
       nostr.publish = mockPublish;
       nostr.updatePrivKey(Buffer.from(mockPrivateKey).toString('hex'));
 
-      await nostr.sendDirectMessageToPeer(
-        'test message',
-        mockPublicKey,
-        [['test', 'tag']]
-      );
+      await nostr.sendDirectMessageToPeer('test message', mockPublicKey, [['test', 'tag']]);
 
-      expect(mockPublish).toHaveBeenCalledWith(expect.objectContaining({
-        kind: 4,
-        content: expect.any(String),
-        tags: expect.arrayContaining([['p', mockPublicKey], ['test', 'tag']]),
-      }));
+      expect(mockPublish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: 4,
+          content: expect.any(String),
+          tags: expect.arrayContaining([
+            ['p', mockPublicKey],
+            ['test', 'tag'],
+          ]),
+        }),
+      );
     });
 
     it('should throw error when sending DM without private key', async () => {
-      await expect(nostr.sendDirectMessageToPeer(
-        'test message',
-        mockPublicKey,
-        []
-      )).rejects.toThrow('Private key not set');
+      await expect(nostr.sendDirectMessageToPeer('test message', mockPublicKey, [])).rejects.toThrow(
+        'Private key not set',
+      );
     });
   });
 });

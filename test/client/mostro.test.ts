@@ -16,7 +16,7 @@ describe('Mostro', () => {
       mostroPubKey: 'test-pubkey',
       relays: ['wss://relay.test'],
       privateKey: 'test-private-key',
-      debug: true
+      debug: true,
     };
     mostro = new Mostro(options);
   });
@@ -42,13 +42,15 @@ describe('Mostro', () => {
   describe('submitOrder', () => {
     it('should throw error if key manager is not initialized', async () => {
       const mostroWithoutKey = new Mostro({ ...options, privateKey: undefined });
-      await expect(mostroWithoutKey.submitOrder({
-        type: OrderType.SELL,
-        amount: 100000,
-        fiat_code: 'USD',
-        fiat_amount: 50,
-        payment_method: 'BANK'
-      })).rejects.toThrow('Key manager not initialized');
+      await expect(
+        mostroWithoutKey.submitOrder({
+          type: OrderType.SELL,
+          amount: 100000,
+          fiat_code: 'USD',
+          fiat_amount: 50,
+          payment_method: 'BANK',
+        }),
+      ).rejects.toThrow('Key manager not initialized');
     });
 
     it('should submit a new order successfully', async () => {
@@ -57,7 +59,7 @@ describe('Mostro', () => {
         amount: 100000,
         fiat_code: 'USD',
         fiat_amount: 50,
-        payment_method: 'BANK'
+        payment_method: 'BANK',
       });
       expect(response).toBeDefined();
     });
@@ -73,7 +75,7 @@ describe('Mostro', () => {
       payment_method: 'BANK',
       status: OrderStatus.PENDING,
       created_at: Date.now(),
-      pubkey: 'test-pubkey'
+      pubkey: 'test-pubkey',
     };
 
     it('should take a sell order', async () => {
@@ -97,7 +99,7 @@ describe('Mostro', () => {
       payment_method: 'BANK',
       status: OrderStatus.PENDING,
       created_at: Date.now(),
-      pubkey: 'test-pubkey'
+      pubkey: 'test-pubkey',
     };
 
     it('should add invoice to order', async () => {
@@ -124,7 +126,7 @@ describe('Mostro', () => {
       mockEvent.tags = [
         ['z', 'info'],
         ['mostro_pubkey', 'test-pubkey'],
-        ['mostro_version', '1.0.0']
+        ['mostro_version', '1.0.0'],
       ];
 
       // Simulate info update
@@ -148,9 +150,7 @@ describe('Mostro', () => {
 
   describe('waitForAction', () => {
     it('should timeout if action is not received', async () => {
-      await expect(
-        mostro.waitForAction(Action.NewOrder, 'test-id', 100)
-      ).rejects.toThrow('Timeout');
+      await expect(mostro.waitForAction(Action.NewOrder, 'test-id', 100)).rejects.toThrow('Timeout');
     });
   });
 });

@@ -76,69 +76,38 @@ describe('CryptoUtils', () => {
 
     it('should encrypt and decrypt message successfully', () => {
       // Alice encrypts message for Bob
-      const encrypted = CryptoUtils.encryptMessage(
-        testMessage,
-        aliceKeyPair.privateKey,
-        bobKeyPair.publicKey
-      );
+      const encrypted = CryptoUtils.encryptMessage(testMessage, aliceKeyPair.privateKey, bobKeyPair.publicKey);
 
       // Bob decrypts message from Alice
-      const decrypted = CryptoUtils.decryptMessage(
-        encrypted,
-        bobKeyPair.privateKey,
-        aliceKeyPair.publicKey
-      );
+      const decrypted = CryptoUtils.decryptMessage(encrypted, bobKeyPair.privateKey, aliceKeyPair.publicKey);
 
       expect(decrypted).toBe(testMessage);
     });
 
     it('should generate different ciphertexts for same plaintext', () => {
-      const encrypted1 = CryptoUtils.encryptMessage(
-        testMessage,
-        aliceKeyPair.privateKey,
-        bobKeyPair.publicKey
-      );
+      const encrypted1 = CryptoUtils.encryptMessage(testMessage, aliceKeyPair.privateKey, bobKeyPair.publicKey);
 
-      const encrypted2 = CryptoUtils.encryptMessage(
-        testMessage,
-        aliceKeyPair.privateKey,
-        bobKeyPair.publicKey
-      );
+      const encrypted2 = CryptoUtils.encryptMessage(testMessage, aliceKeyPair.privateKey, bobKeyPair.publicKey);
 
       expect(encrypted1).not.toBe(encrypted2);
     });
 
     it('should derive same conversation key for both parties', () => {
-      const aliceConvKey = CryptoUtils.deriveConversationKey(
-        aliceKeyPair.privateKey,
-        bobKeyPair.publicKey
-      );
+      const aliceConvKey = CryptoUtils.deriveConversationKey(aliceKeyPair.privateKey, bobKeyPair.publicKey);
 
-      const bobConvKey = CryptoUtils.deriveConversationKey(
-        bobKeyPair.privateKey,
-        aliceKeyPair.publicKey
-      );
+      const bobConvKey = CryptoUtils.deriveConversationKey(bobKeyPair.privateKey, aliceKeyPair.publicKey);
 
-      expect(Buffer.from(aliceConvKey).toString('hex'))
-        .toBe(Buffer.from(bobConvKey).toString('hex'));
+      expect(Buffer.from(aliceConvKey).toString('hex')).toBe(Buffer.from(bobConvKey).toString('hex'));
     });
 
     it('should throw error when decrypting with wrong keys', () => {
-      const encrypted = CryptoUtils.encryptMessage(
-        testMessage,
-        aliceKeyPair.privateKey,
-        bobKeyPair.publicKey
-      );
+      const encrypted = CryptoUtils.encryptMessage(testMessage, aliceKeyPair.privateKey, bobKeyPair.publicKey);
 
       // Generate a new key pair (wrong keys)
       const wrongKeyPair = CryptoUtils.generateKeyPair();
 
       expect(() => {
-        CryptoUtils.decryptMessage(
-          encrypted,
-          wrongKeyPair.privateKey,
-          aliceKeyPair.publicKey
-        );
+        CryptoUtils.decryptMessage(encrypted, wrongKeyPair.privateKey, aliceKeyPair.publicKey);
       }).toThrow();
     });
   });

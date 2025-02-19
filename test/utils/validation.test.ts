@@ -1,4 +1,9 @@
-import { validateOrder, validateAmountConstraints, validateMarketPriceOrder, ValidationError } from '../../src/utils/validations';
+import {
+  validateOrder,
+  validateAmountConstraints,
+  validateMarketPriceOrder,
+  ValidationError,
+} from '../../src/utils/validations';
 import { Order, OrderType } from '../../src/types/core/order';
 
 describe('Validation Utils', () => {
@@ -10,7 +15,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order)).toThrow(
-        new ValidationError('Minimum amount must be less than maximum amount', 'INVALID_RANGE')
+        new ValidationError('Minimum amount must be less than maximum amount', 'INVALID_RANGE'),
       );
     });
 
@@ -21,7 +26,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order)).toThrow(
-        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE')
+        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE'),
       );
     });
 
@@ -33,7 +38,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order)).toThrow(
-        new ValidationError('Range orders must have amount set to 0', 'INVALID_AMOUNT_FOR_RANGE')
+        new ValidationError('Range orders must have amount set to 0', 'INVALID_AMOUNT_FOR_RANGE'),
       );
     });
 
@@ -57,10 +62,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateMarketPriceOrder(order)).toThrow(
-        new ValidationError(
-          'Market price orders must specify either premium or fiat amount',
-          'INVALID_MARKET_PRICE'
-        )
+        new ValidationError('Market price orders must specify either premium or fiat amount', 'INVALID_MARKET_PRICE'),
       );
     });
 
@@ -94,7 +96,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(order)).toThrow(
-        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE')
+        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE'),
       );
     });
 
@@ -106,7 +108,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(order)).toThrow(
-        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD')
+        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD'),
       );
     });
 
@@ -125,11 +127,11 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(orderWithHighPremium)).toThrow(
-        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM')
+        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM'),
       );
 
       expect(() => validateOrder(orderWithNegativePremium)).toThrow(
-        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM')
+        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM'),
       );
     });
 

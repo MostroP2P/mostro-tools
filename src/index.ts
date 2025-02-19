@@ -3,23 +3,10 @@ export { Mostro, PublicKeyType } from './client/mostro';
 export { OrderManager } from './client/order';
 
 // Core types
-export {
-  Order,
-  NewOrder,
-  OrderType,
-  OrderStatus,
-  Action,
-  MostroInfo,
-  MostroMessage,
-} from './types/core';
+export { Order, NewOrder, OrderType, OrderStatus, Action, MostroInfo, MostroMessage } from './types/core';
 
 // Nostr types
-export {
-  Rumor,
-  Seal,
-  GiftWrap,
-  GiftWrapContent,
-} from './types/core/nostr';
+export { Rumor, Seal, GiftWrap, GiftWrapContent } from './types/core/nostr';
 
 // Utility classes
 export { KeyManager, KeyManagerError } from './utils/key-manager';
