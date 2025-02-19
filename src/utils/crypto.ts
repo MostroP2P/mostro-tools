@@ -1,35 +1,46 @@
-import { nip44 } from 'nostr-tools'
+import { nip44, nip19, getPublicKey, generateSecretKey } from 'nostr-tools';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { v4 as uuidv4 } from 'uuid';
 
-/**
- * Derive a shared conversation key using NIP-44.
- * @param privateKey Sender's private key (Uint8Array)
- * @param publicKey Receiver's public key (string)
- * @returns The derived conversation key
- */
-export function deriveConversationKey(privateKey: Uint8Array, publicKey: string): Uint8Array {
-  return nip44.getConversationKey(privateKey, publicKey)
+export interface KeyPair {
+  privateKey: string;
+  publicKey: string; //hex encoded both
 }
 
-/**
- * Encrypt a plaintext message using the conversation key derived from NIP-44.
- * @param plaintext The plaintext message to encrypt
- * @param privateKey Sender's private key
- * @param publicKey Receiver's public key
- * @returns The encrypted message as a Base64 string
- */
-export function encryptMessage(plaintext: string, privateKey: Uint8Array, publicKey: string): string {
-  const conversationKey = deriveConversationKey(privateKey, publicKey)
-  return nip44.encrypt(plaintext, conversationKey)
+export interface EncryptionKeys {
+  conversationKey: Uint8Array;
+  encryptionKey: Uint8Array;
+  iv: Uint8Array;
 }
 
-/**
- * Decrypt an encrypted message using the conversation key derived from NIP-44.
- * @param encryptedMessage The encrypted message as a Base64 string
- * @param privateKey Receiver's private key
- * @param senderPublicKey Sender's public key
- * @returns The decrypted plaintext
- */
-export function decryptMessage(encryptedMessage: string, privateKey: Uint8Array, senderPublicKey: string): string {
-  const conversationKey = deriveConversationKey(privateKey, senderPublicKey)
-  return nip44.decrypt(encryptedMessage, conversationKey)
+export class CryptoUtils {
+  static generateKeyPair(): KeyPair {
+    const privateKey = generateSecretKey();
+    return {
+      privateKey: bytesToHex(privateKey),
+      publicKey: getPublicKey(privateKey),
+    };
+  }
+  static generateId(): string {
+    return uuidv4();
+  }
+
+  static encodeKey(key: string, type: 'pub' | 'sec'): string {
+    return type === 'pub' ? nip19.npubEncode(key) : nip19.nsecEncode(hexToBytes(key));
+  }
+
+  static deriveConversationKey(privateKey: string, publicKey: string): Uint8Array {
+    const privKeyBytes = hexToBytes(privateKey);
+    return nip44.v2.utils.getConversationKey(privKeyBytes, publicKey);
+  }
+
+  static encryptMessage(plaintext: string, privateKey: string, publicKey: string): string {
+    const conversationKey = this.deriveConversationKey(privateKey, publicKey);
+    return nip44.v2.encrypt(plaintext, conversationKey);
+  }
+
+  static decryptMessage(ciphertext: string, privateKey: string, publicKey: string): string {
+    const conversationKey = this.deriveConversationKey(privateKey, publicKey);
+    return nip44.v2.decrypt(ciphertext, conversationKey);
+  }
 }
