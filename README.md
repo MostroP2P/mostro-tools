@@ -1,6 +1,6 @@
 # @mostrop2p/mostro-tools
 
-##Tools for developing Mostro clients
+## Tools for developing Mostro clients
 
 `@mostrop2p/mostro-tools` is a lightweight and extensible library designed to simplify the development of Mostro clients. It provides low-level functionality for interacting with the Mostro protocol, including order management, messaging, dispute resolution, and more.
 

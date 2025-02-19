@@ -1,5 +1,39 @@
-// src/types/core/message.ts
-import type { Order } from './order.ts';
+import type { Order } from './order';
+
+export interface MostroInfo {
+  mostro_pubkey: string;
+  mostro_version: string;
+  mostro_commit_id: string;
+  max_order_amount: number;
+  min_order_amount: number;
+  expiration_hours: number;
+  expiration_seconds: number;
+  fee: number;
+  hold_invoice_expiration_window: number;
+  invoice_expiration_window: number;
+}
+
+export interface MostroMessage {
+  order?: {
+    version: number;
+    id: string;
+    request_id?: number;
+    action: Action;
+    content?: MessageContent;
+    created_at: number;
+  };
+  'cant-do'?: {
+    version: number;
+    id: string;
+    request_id?: number;
+    pubkey: string | null;
+    action: Action.CantDo;
+    content: {
+      text_message: string;
+    };
+  };
+  created_at?: number;
+}
 
 export enum Action {
   // Order actions
@@ -14,7 +48,6 @@ export enum Action {
   Released = 'released',
   Cancel = 'cancel',
   Canceled = 'canceled',
-
   // Status related
   WaitingBuyerInvoice = 'waiting-buyer-invoice',
   WaitingSellerToPay = 'waiting-seller-to-pay',
@@ -22,22 +55,18 @@ export enum Action {
   HoldInvoicePaymentAccepted = 'hold-invoice-payment-accepted',
   HoldInvoicePaymentSettled = 'hold-invoice-payment-settled',
   HoldInvoicePaymentCanceled = 'hold-invoice-payment-canceled',
-
   // Cooperative cancellation
   CooperativeCancelInitiatedByYou = 'cooperative-cancel-initiated-by-you',
   CooperativeCancelInitiatedByPeer = 'cooperative-cancel-initiated-by-peer',
   CooperativeCancelAccepted = 'cooperative-cancel-accepted',
-
   // Rating
   Rate = 'rate',
   RateUser = 'rate-user',
   RateReceived = 'rate-received',
-
   // Dispute
   Dispute = 'dispute',
   DisputeInitiatedByYou = 'dispute-initiated-by-you',
   DisputeInitiatedByPeer = 'dispute-initiated-by-peer',
-
   // Error states
   CantDo = 'cant-do',
   OutOfRangeFiatAmount = 'out-of-range-fiat-amount',
@@ -52,21 +81,14 @@ export enum Action {
 
 export interface MessageContent {
   order?: Order;
-  payment_request?: {
-    order: Order | null;
-    invoice: string;
-    amount?: number; // in sats
-  };
+  payment_request?: [Order | null, string, number?];
   text_message?: string;
   peer?: { pubkey: string };
-  rating_user?: {
-    value: 1 | 2 | 3 | 4 | 5; // Explicit rating values
-    confirmed: boolean;
-  };
+  rating_user?: number;
   dispute?: {
     id: string;
-    buyer_token?: number; // Add JSDoc explaining token purpose
-    seller_token?: number; // Add JSDoc explaining token purpose
+    buyer_token?: number;
+    seller_token?: number;
   };
 }
 
@@ -105,5 +127,7 @@ type OrderActions =
   | Action.CooperativeCancelInitiatedByYou
   | Action.CooperativeCancelInitiatedByPeer
   | Action.CooperativeCancelAccepted;
+
 type DisputeActions = Action.Dispute | Action.DisputeInitiatedByYou | Action.DisputeInitiatedByPeer;
+
 type RatingActions = Action.Rate | Action.RateUser | Action.RateReceived;

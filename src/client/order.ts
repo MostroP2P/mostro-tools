@@ -1,26 +1,84 @@
-import type { Order } from '../types/core/order.ts';
-import { createOrder } from '../core/order.ts';
-import { publishEvent } from '../utils/nostr.ts';
+import { KeyManager } from '../utils/key-manager';
+import { Order, NewOrder, OrderType } from '../types/core/order';
+import { CryptoUtils } from '../utils/crypto';
 
-/**
- * Create and publish a new order.
- * @param order The partial order details.
- * @param privateKey The private key of the creator.
- * @param recipientPublicKey The public key of the recipient (e.g., Mostro's pubkey).
- * @param relayUrl The relay URL to publish the event to.
- * @returns The published order event.
- */
-export async function newOrder(
-  order: Partial<Order>,
-  privateKey: Uint8Array,
-  recipientPublicKey: string,
-  relayUrl: string,
-): Promise<NostrEvent> {
-  // Create the order event
-  const event = createOrder(order, privateKey, recipientPublicKey);
+export class OrderManager {
+  constructor(
+    private keyManager: KeyManager,
+    private debug: boolean = false,
+  ) {}
 
-  // Publish the event to the relay
-  await publishEvent(event, relayUrl);
+  async createOrder(orderData: NewOrder): Promise<Order> {
+    if (!this.keyManager.getIdentityKey()) {
+      throw new Error('Key manager not initialized');
+    }
 
-  return event;
+    const orderId = CryptoUtils.generateId();
+    const tradeKey = await this.keyManager.generateTradeKey(orderId);
+    const tradePubKey = this.keyManager.getPublicKeyFromPrivate(tradeKey);
+
+    const order: Order = {
+      ...orderData,
+      id: orderId,
+      amount: orderData.amount || 0,
+      created_at: Date.now(),
+      expires_at: this.calculateExpiration(Date.now()),
+      trade_index: this.keyManager.getNextKeyIndex(),
+    };
+
+    // Set appropriate pubkey based on order type
+    if (order.kind === OrderType.BUY) {
+      order.buyer_pubkey = tradePubKey;
+      order.master_buyer_pubkey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
+    } else {
+      order.seller_pubkey = tradePubKey;
+      order.master_seller_pubkey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
+    }
+
+    if (this.debug) {
+      console.log('Created order:', {
+        orderId,
+        tradeIndex: order.trade_index,
+        tradePubKey,
+      });
+    }
+
+    return order;
+  }
+
+  private calculateExpiration(createdAt: number): number {
+    // Default 24 hour expiration
+    return createdAt + 24 * 60 * 60;
+  }
+
+  async takeOrder(existingOrder: Order): Promise<Order> {
+    if (!this.keyManager.getIdentityKey()) {
+      throw new Error('Key manager not initialized');
+    }
+
+    const tradeKey = await this.keyManager.generateTradeKey(existingOrder.id);
+    const tradePubKey = this.keyManager.getPublicKeyFromPrivate(tradeKey);
+    const identityPubKey = this.keyManager.getPublicKeyFromPrivate(this.keyManager.getIdentityKey()!);
+
+    // Update order with taker's keys
+    if (existingOrder.kind === OrderType.SELL) {
+      existingOrder.buyer_pubkey = tradePubKey;
+      existingOrder.master_buyer_pubkey = identityPubKey;
+    } else {
+      existingOrder.seller_pubkey = tradePubKey;
+      existingOrder.master_seller_pubkey = identityPubKey;
+    }
+
+    existingOrder.trade_index = this.keyManager.getNextKeyIndex();
+
+    if (this.debug) {
+      console.log('Taking order:', {
+        orderId: existingOrder.id,
+        tradeIndex: existingOrder.trade_index,
+        tradePubKey,
+      });
+    }
+
+    return existingOrder;
+  }
 }

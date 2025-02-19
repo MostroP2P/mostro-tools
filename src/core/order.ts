@@ -1,71 +1,107 @@
-import type { Order } from '../types/core/order.ts';
-import { finalizeEvent } from 'nostr-tools';
-import { OrderStatus, OrderType } from '../types/core/order.ts';
-import { createGiftWrapEvent, GiftWrapContent } from '../utils/nostr.ts';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { Order, OrderStatus, OrderType, NewOrder } from '../types/core/order';
+import { validateOrder } from '../utils/validations';
 
-/**
- * Validates and ensures that the required fields for an order are valid.
- * @param order The partial order object to validate.
- */
-function validateOrder(order: Partial<Order>) {
-  if (!order.amount || order.amount <= 0) {
-    throw new Error('Order amount must be greater than zero.');
+export const NOSTR_REPLACEABLE_EVENT_KIND = 38383;
+export const ORDER_EXPIRATION_TIME = 24 * 60 * 60; // 24 hours
+
+export function generateOrderTags(order: Partial<Order>): string[][] {
+  const tags: string[][] = [
+    ['d', order.id || ''],
+    ['k', order.kind || OrderType.BUY],
+    ['f', order.fiat_code || ''],
+    ['s', order.status || OrderStatus.PENDING],
+    ['amt', (order.amount || 0).toString()],
+    ['pm', order.payment_method || ''],
+    ['premium', (order.premium || 0).toString()],
+    ['network', 'mainnet'],
+    ['layer', 'lightning'],
+    ['y', 'mostrop2p'],
+    ['z', 'order'],
+  ];
+
+  // Handle range orders
+  if (order.min_amount !== undefined && order.max_amount !== undefined) {
+    tags.push(['fa', order.min_amount.toString(), order.max_amount.toString()]);
+  } else {
+    tags.push(['fa', (order.fiat_amount || 0).toString()]);
   }
 
-  if (!order.fiat_code || typeof order.fiat_code !== 'string') {
-    throw new Error('Order must have a valid fiat_code.');
-  }
+  // Add expiration
+  const expiration = Math.floor(Date.now() / 1000) + ORDER_EXPIRATION_TIME;
+  tags.push(['expiration', expiration.toString()]);
 
-  if (!order.payment_method || typeof order.payment_method !== 'string') {
-    throw new Error('Order must have a valid payment_method.');
-  }
+  return tags;
+}
 
-  if (order.premium && (order.premium < 0 || order.premium > 100)) {
-    throw new Error('Order premium must be between 0 and 100.');
+export function extractOrderFromEvent(event: NDKEvent): Order | null {
+  try {
+    // Filtrar y mapear solo los tags que tienen exactamente dos elementos
+    const validTags = event.tags.filter((tag) => tag.length === 2);
+    const tags = new Map(validTags as [string, string][]);
+
+    // Parse amount information
+    const fiatAmountTag = tags.get('fa');
+    let minAmount: number | undefined;
+    let maxAmount: number | undefined;
+    let fiatAmount = 0;
+
+    if (typeof fiatAmountTag === 'string' && fiatAmountTag.includes(',')) {
+      const [min, max] = fiatAmountTag.split(',').map(Number);
+      minAmount = min;
+      maxAmount = max;
+    } else if (fiatAmountTag) {
+      fiatAmount = Number(fiatAmountTag);
+    }
+
+    return {
+      id: String(tags.get('d')) || '',
+      kind: tags.get('k') as OrderType,
+      status: tags.get('s') as OrderStatus,
+      amount: Number(tags.get('amt')) || 0,
+      fiat_code: String(tags.get('f')) || '',
+      fiat_amount: fiatAmount,
+      min_amount: minAmount,
+      max_amount: maxAmount,
+      payment_method: String(tags.get('pm')) || '',
+      premium: Number(tags.get('premium')) || 0,
+      created_at: event.created_at || Math.floor(Date.now() / 1000),
+      expires_at: Number(tags.get('expiration')) || 0,
+    };
+  } catch (error) {
+    console.error('Error extracting order from event:', error);
+    return null;
   }
 }
 
-/**
- * Create a new NIP-59 wrapped order event for Mostro.
- * @param order The partial order details (fields required to initialize the order).
- * @param senderPrivateKey The private key of the creator.
- * @param recipientPublicKey The public key of the recipient (e.g., Mostro's pubkey).
- * @returns The wrapped Nostr event using NIP-59.
- */
-export function createOrder(order: Partial<Order>, senderPrivateKey: Uint8Array, recipientPublicKey: string) {
-  // Validate the order details
-  validateOrder(order);
+export function prepareNewOrder(newOrder: NewOrder): Order {
+  validateOrder(newOrder);
 
-  // Ensure required fields for an order are present
-  const newOrder: Partial<Order> = {
-    kind: order.kind || OrderType.BUY,
+  return {
+    id: crypto.randomUUID(),
+    kind: newOrder.kind,
     status: OrderStatus.PENDING,
-    fiat_code: order.fiat_code || 'USD',
-    amount: order.amount || 0,
-    payment_method: order.payment_method || 'unknown',
-    created_at: order.created_at ?? Math.floor(Date.now() / 1000), // Ensure created_at is always a number
-    ...order,
+    amount: newOrder.amount || 0,
+    fiat_code: newOrder.fiat_code,
+    fiat_amount: newOrder.fiat_amount,
+    min_amount: newOrder.min_amount,
+    max_amount: newOrder.max_amount,
+    payment_method: newOrder.payment_method,
+    premium: newOrder.premium,
+    created_at: Math.floor(Date.now() / 1000),
+    expires_at: Math.floor(Date.now() / 1000) + ORDER_EXPIRATION_TIME,
+    buyer_invoice: newOrder.buyer_invoice,
   };
+}
 
-  // Create a plain Nostr event
-  const eventTemplate = {
-    kind: 38383, // Mostro-specific Nostr kind
-    created_at: newOrder.created_at as number, // Explicitly ensure it's a number
-    tags: [
-      ['fiat_code', newOrder.fiat_code || ''],
-      ['kind', newOrder.kind || ''],
-      ['payment_method', newOrder.payment_method || ''],
-    ].filter((tag) => tag.every((value) => value !== undefined)), // Remove undefined values
-    content: JSON.stringify(newOrder),
-  };
+export function isOrderExpired(order: Order): boolean {
+  return order.expires_at < Math.floor(Date.now() / 1000);
+}
 
-  // Finalize the plain event
-  const plainEvent = finalizeEvent(eventTemplate, senderPrivateKey);
+export function isRangeOrder(order: Order): boolean {
+  return order.min_amount !== undefined && order.max_amount !== undefined;
+}
 
-  // Wrap the event using NIP-59
-  return createGiftWrapEvent(
-    JSON.parse(JSON.stringify(plainEvent)) as GiftWrapContent,
-    senderPrivateKey,
-    recipientPublicKey,
-  );
+export function isMarketPriceOrder(order: Order): boolean {
+  return order.amount === 0 && !isRangeOrder(order);
 }

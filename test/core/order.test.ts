@@ -1,118 +1,186 @@
-import { generateSecretKey, getPublicKey } from 'nostr-tools';
-import { describe, expect, it } from 'vitest';
-import { OrderStatus, OrderType } from '../../src/types/core/order.ts';
-import { unwrapGiftWrapEvent } from '../../src/utils/nostr.ts';
-import { createOrder } from '../../src/core/order.ts';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import {
+  generateOrderTags,
+  extractOrderFromEvent,
+  prepareNewOrder,
+  isOrderExpired,
+  isRangeOrder,
+  isMarketPriceOrder,
+  ORDER_EXPIRATION_TIME,
+} from '../../src/core/order';
+import { Order, OrderStatus, OrderType, NewOrder } from '../../src/types/core/order';
 
-describe('createOrder with NIP-59', () => {
-  it('should create a valid NIP-59 wrapped Nostr event for an order', () => {
-    const senderPrivateKey = generateSecretKey();
-    const recipientPublicKey = getPublicKey(generateSecretKey()); // Simulated recipient
+describe('Core Order Functions', () => {
+  describe('generateOrderTags', () => {
+    it('should generate basic order tags', () => {
+      const order: Partial<Order> = {
+        id: 'test-id',
+        kind: OrderType.BUY,
+        fiat_code: 'USD',
+        status: OrderStatus.PENDING,
+        amount: 100,
+        payment_method: 'bank',
+        premium: 5,
+        fiat_amount: 1000,
+      };
 
-    const order = {
-      kind: OrderType.SELL,
-      fiat_code: 'EUR',
-      amount: 100,
-      payment_method: 'SEPA',
-    };
+      const tags = generateOrderTags(order);
 
-    const wrappedEvent = createOrder(order, senderPrivateKey, recipientPublicKey);
+      expect(tags).toContainEqual(['d', 'test-id']);
+      expect(tags).toContainEqual(['k', OrderType.BUY]);
+      expect(tags).toContainEqual(['f', 'USD']);
+      expect(tags).toContainEqual(['s', OrderStatus.PENDING]);
+      expect(tags).toContainEqual(['amt', '100']);
+      expect(tags).toContainEqual(['pm', 'bank']);
+      expect(tags).toContainEqual(['premium', '5']);
+      expect(tags).toContainEqual(['fa', '1000']);
+      expect(tags).toContainEqual(['network', 'mainnet']);
+      expect(tags).toContainEqual(['layer', 'lightning']);
+    });
 
-    // Validate the wrapped event structure
-    expect(wrappedEvent.kind).toBe(1059); // Kind for NIP-59
-    expect(wrappedEvent.tags).toContainEqual(['p', recipientPublicKey]);
-    expect(wrappedEvent.content).not.toBeNull();
-    expect(wrappedEvent.created_at).toBeDefined();
-    expect(wrappedEvent.created_at).toBeLessThanOrEqual(Math.floor(Date.now() / 1000));
-    expect(wrappedEvent.pubkey).toBeDefined();
-    expect(wrappedEvent.sig).toBeDefined();
+    it('should handle range orders', () => {
+      const order: Partial<Order> = {
+        id: 'test-id',
+        min_amount: 100,
+        max_amount: 1000,
+      };
 
-    // Verify all required NIP-59 tags are present
-    const hasEncryptedTag = wrappedEvent.tags.some(([t]) => t === 'encrypted');
-    expect(hasEncryptedTag).toBe(true);
-
-    // Unwrap the event and validate the original content
-    const unwrappedEvent = unwrapGiftWrapEvent(wrappedEvent, senderPrivateKey);
-    const originalContent = JSON.parse(unwrappedEvent.content);
-
-    expect(originalContent.kind).toBe(OrderType.SELL);
-    expect(originalContent.fiat_code).toBe('EUR');
-    expect(originalContent.amount).toBe(100);
-    expect(originalContent.payment_method).toBe('SEPA');
-    expect(originalContent.status).toBe(OrderStatus.PENDING);
+      const tags = generateOrderTags(order);
+      expect(tags).toContainEqual(['fa', '100', '1000']);
+    });
   });
 
-  it('should throw an error for invalid recipient public key', () => {
-    const senderPrivateKey = generateSecretKey();
-    const invalidRecipientPublicKey = 'invalid_pubkey'; // Simulated invalid recipient
+  describe('extractOrderFromEvent', () => {
+    it('should extract order from valid event', () => {
+      const mockEvent = {
+        tags: [
+          ['d', 'test-id'],
+          ['k', OrderType.BUY],
+          ['f', 'USD'],
+          ['s', OrderStatus.PENDING],
+          ['amt', '100'],
+          ['pm', 'bank'],
+          ['premium', '5'],
+          ['fa', '1000'],
+          ['expiration', '1693526400'],
+        ],
+        created_at: 1693440000,
+      } as NDKEvent;
 
-    const order = {
-      kind: OrderType.BUY,
-      fiat_code: 'USD',
-      amount: 50,
-      payment_method: 'PayPal',
-    };
+      const order = extractOrderFromEvent(mockEvent);
 
-    expect(() => createOrder(order, senderPrivateKey, invalidRecipientPublicKey)).toThrowError(
-      'Invalid recipient public key format',
-    );
+      expect(order).toBeDefined();
+      expect(order?.id).toBe('test-id');
+      expect(order?.kind).toBe(OrderType.BUY);
+      expect(order?.fiat_code).toBe('USD');
+      expect(order?.amount).toBe(100);
+      expect(order?.fiat_amount).toBe(1000);
+      expect(order?.payment_method).toBe('bank');
+      expect(order?.premium).toBe(5);
+    });
+
+    it('should handle range orders in event', () => {
+      const mockEvent = {
+        tags: [
+          ['d', 'test-id'],
+          ['fa', '100,1000'],
+        ],
+        created_at: 1693440000,
+      } as NDKEvent;
+
+      const order = extractOrderFromEvent(mockEvent);
+
+      expect(order?.min_amount).toBe(100);
+      expect(order?.max_amount).toBe(1000);
+    });
+
+    it('should return null for invalid event', () => {
+      const mockEvent = {
+        tags: [['invalid']],
+        created_at: 1693440000,
+      } as NDKEvent;
+
+      const order = extractOrderFromEvent(mockEvent);
+      expect(order).toBeNull();
+    });
   });
 
-  it('should throw an error for missing required fields', () => {
-    const senderPrivateKey = generateSecretKey();
-    const recipientPublicKey = getPublicKey(generateSecretKey());
+  describe('prepareNewOrder', () => {
+    it('should prepare a new order with required fields', () => {
+      const newOrder: NewOrder = {
+        kind: OrderType.BUY,
+        fiat_code: 'USD',
+        payment_method: 'bank',
+        amount: 100,
+        premium: 5,
+      };
 
-    const invalidOrder = {
-      fiat_code: 'USD',
-    };
+      const order = prepareNewOrder(newOrder);
 
-    expect(() => createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey)).toThrowError(
-      'Order amount must be greater than zero',
-    );
+      expect(order.id).toBeDefined();
+      expect(order.status).toBe(OrderStatus.PENDING);
+      expect(order.created_at).toBeDefined();
+      expect(order.expires_at).toBe(order.created_at + ORDER_EXPIRATION_TIME);
+      expect(order.kind).toBe(OrderType.BUY);
+      expect(order.fiat_code).toBe('USD');
+      expect(order.amount).toBe(100);
+      expect(order.premium).toBe(5);
+    });
   });
 
-  it('should create an order with minimum valid inputs', () => {
-    const senderPrivateKey = generateSecretKey();
-    const recipientPublicKey = getPublicKey(generateSecretKey());
+  describe('isOrderExpired', () => {
+    it('should return true for expired orders', () => {
+      const order: Order = {
+        expires_at: Math.floor(Date.now() / 1000) - 3600,
+      } as Order;
 
-    const order = {
-      amount: 1,
-    };
+      expect(isOrderExpired(order)).toBe(true);
+    });
 
-    const wrappedEvent = createOrder(order, senderPrivateKey, recipientPublicKey);
+    it('should return false for non-expired orders', () => {
+      const order: Order = {
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+      } as Order;
 
-    expect(wrappedEvent.kind).toBe(1059); // Kind for NIP-59
-    const unwrappedEvent = unwrapGiftWrapEvent(wrappedEvent, senderPrivateKey);
-    const originalContent = JSON.parse(unwrappedEvent.content);
-
-    expect(originalContent.amount).toBe(1);
-    expect(originalContent.kind).toBe(OrderType.BUY); // Default kind
-    expect(originalContent.fiat_code).toBe('USD'); // Default fiat code
-    expect(originalContent.payment_method).toBe('unknown'); // Default payment method
+      expect(isOrderExpired(order)).toBe(false);
+    });
   });
 
-  it('should handle edge cases for premium values', () => {
-    const senderPrivateKey = generateSecretKey();
-    const recipientPublicKey = getPublicKey(generateSecretKey());
+  describe('isRangeOrder', () => {
+    it('should identify range orders correctly', () => {
+      const rangeOrder: Order = {
+        min_amount: 100,
+        max_amount: 1000,
+      } as Order;
 
-    const validOrder = {
-      amount: 100,
-      premium: 10,
-    };
+      const normalOrder: Order = {
+        amount: 100,
+      } as Order;
 
-    const wrappedEvent = createOrder(validOrder, senderPrivateKey, recipientPublicKey);
-    const unwrappedEvent = unwrapGiftWrapEvent(wrappedEvent, senderPrivateKey);
-    const originalContent = JSON.parse(unwrappedEvent.content);
+      expect(isRangeOrder(rangeOrder)).toBe(true);
+      expect(isRangeOrder(normalOrder)).toBe(false);
+    });
+  });
 
-    expect(originalContent.premium).toBe(10);
+  describe('isMarketPriceOrder', () => {
+    it('should identify market price orders correctly', () => {
+      const marketOrder: Order = {
+        amount: 0,
+      } as Order;
 
-    const invalidOrder = {
-      amount: 100,
-      premium: 110, // Invalid premium value
-    };
+      const rangeOrder: Order = {
+        amount: 0,
+        min_amount: 100,
+        max_amount: 1000,
+      } as Order;
 
-    expect(() => createOrder(invalidOrder as any, senderPrivateKey, recipientPublicKey)).toThrowError(
-      'Order premium must be between 0 and 100',
-    );
+      const normalOrder: Order = {
+        amount: 100,
+      } as Order;
+
+      expect(isMarketPriceOrder(marketOrder)).toBe(true);
+      expect(isMarketPriceOrder(rangeOrder)).toBe(false);
+      expect(isMarketPriceOrder(normalOrder)).toBe(false);
+    });
   });
 });

@@ -29,12 +29,24 @@ importers:
       '@scure/bip39':
         specifier: 1.2.1
         version: 1.2.1
+      bip32:
+        specifier: 5.0.0-rc.0
+        version: 5.0.0-rc.0(typescript@5.7.2)
+      bip39:
+        specifier: ^3.1.0
+        version: 3.1.0
       eslint-plugin-prettier:
         specifier: ^5.2.1
         version: 5.2.1(eslint-config-prettier@9.1.0(eslint@9.16.0))(eslint@9.16.0)(prettier@3.4.2)
       nostr-tools:
         specifier: ^2.10.3
         version: 2.10.4(typescript@5.7.2)
+      tiny-secp256k1:
+        specifier: ^2.2.3
+        version: 2.2.3
+      uuid:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
       '@mostrop2p/mostro-tools':
         specifier: 'link:'
@@ -1019,6 +1031,16 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==, tarball: https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz}
 
+  base-x@5.0.0:
+    resolution: {integrity: sha512-sMW3VGSX1QWVFA6l8U62MLKz29rRfpTlYdCqLdpLo1/Yd4zZwSbnUaDfciIAowAqvq7YFnWq9hrhdg1KYgc1lQ==, tarball: https://registry.npmjs.org/base-x/-/base-x-5.0.0.tgz}
+
+  bip32@5.0.0-rc.0:
+    resolution: {integrity: sha512-5hVFGrdCnF8GB1Lj2eEo4PRE7+jp+3xBLnfNjydivOkMvKmUKeJ9GG8uOy8prmWl3Oh154uzgfudR1FRkNBudA==, tarball: https://registry.npmjs.org/bip32/-/bip32-5.0.0-rc.0.tgz}
+    engines: {node: '>=18.0.0'}
+
+  bip39@3.1.0:
+    resolution: {integrity: sha512-c9kiwdk45Do5GL0vJMe7tS95VjCii65mYAH7DfWl3uW8AVzXKQVUm64i3hzVybBDMp9r7j9iNxR85+ul8MdN/A==, tarball: https://registry.npmjs.org/bip39/-/bip39-3.1.0.tgz}
+
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==, tarball: https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz}
 
@@ -1037,6 +1059,12 @@ packages:
   bs-logger@0.2.6:
     resolution: {integrity: sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==, tarball: https://registry.npmjs.org/bs-logger/-/bs-logger-0.2.6.tgz}
     engines: {node: '>= 6'}
+
+  bs58@6.0.0:
+    resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==, tarball: https://registry.npmjs.org/bs58/-/bs58-6.0.0.tgz}
+
+  bs58check@4.0.0:
+    resolution: {integrity: sha512-FsGDOnFg9aVI9erdriULkd/JjEWONV/lQE5aYziB5PoBsXRind56lh8doIZIc9X4HoxT5x4bLjMWN1/NB8Zp5g==, tarball: https://registry.npmjs.org/bs58check/-/bs58check-4.0.0.tgz}
 
   bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==, tarball: https://registry.npmjs.org/bser/-/bser-2.1.1.tgz}
@@ -2571,6 +2599,10 @@ packages:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==, tarball: https://registry.npmjs.org/test-exclude/-/test-exclude-6.0.0.tgz}
     engines: {node: '>=8'}
 
+  tiny-secp256k1@2.2.3:
+    resolution: {integrity: sha512-SGcL07SxcPN2nGKHTCvRMkQLYPSoeFcvArUSCYtjVARiFAWU44cCIqYS0mYAU6nY7XfvwURuTIGo2Omt3ZQr0Q==, tarball: https://registry.npmjs.org/tiny-secp256k1/-/tiny-secp256k1-2.2.3.tgz}
+    engines: {node: '>=14.0.0'}
+
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==, tarball: https://registry.npmjs.org/tmpl/-/tmpl-1.0.5.tgz}
 
@@ -2702,6 +2734,14 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==, tarball: https://registry.npmjs.org/uc.micro/-/uc.micro-2.1.0.tgz}
 
+  uint8array-tools@0.0.7:
+    resolution: {integrity: sha512-vrrNZJiusLWoFWBqz5Y5KMCgP9W9hnjZHzZiZRT8oNAkq3d5Z5Oe76jAvVVSRh4U8GGR90N2X1dWtrhvx6L8UQ==, tarball: https://registry.npmjs.org/uint8array-tools/-/uint8array-tools-0.0.7.tgz}
+    engines: {node: '>=14.0.0'}
+
+  uint8array-tools@0.0.8:
+    resolution: {integrity: sha512-xS6+s8e0Xbx++5/0L+yyexukU7pz//Yg6IHg3BKhXotg1JcYtgxVcUctQ0HxLByiJzpAkNFawz1Nz5Xadzo82g==, tarball: https://registry.npmjs.org/uint8array-tools/-/uint8array-tools-0.0.8.tgz}
+    engines: {node: '>=14.0.0'}
+
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==, tarball: https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.0.2.tgz}
 
@@ -2740,9 +2780,21 @@ packages:
     resolution: {integrity: sha512-ueuhzvWnp5JU5CiGSY4WdKbiN/PO2AZ/lpeLiz2l38qwdLy/cW40XobgyuIWucNyum0B33bVB0owjFCeGBSLqg==, tarball: https://registry.npmjs.org/utf8-buffer/-/utf8-buffer-1.0.0.tgz}
     engines: {node: '>=8'}
 
+  uuid@11.0.5:
+    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==, tarball: https://registry.npmjs.org/uuid/-/uuid-11.0.5.tgz}
+    hasBin: true
+
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==, tarball: https://registry.npmjs.org/v8-to-istanbul/-/v8-to-istanbul-9.3.0.tgz}
     engines: {node: '>=10.12.0'}
+
+  valibot@0.37.0:
+    resolution: {integrity: sha512-FQz52I8RXgFgOHym3XHYSREbNtkgSjF9prvMFH1nBsRyfL6SfCzoT1GuSDTlbsuPubM7/6Kbw0ZMQb8A+V+VsQ==, tarball: https://registry.npmjs.org/valibot/-/valibot-0.37.0.tgz}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vfile-message@4.0.2:
     resolution: {integrity: sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==, tarball: https://registry.npmjs.org/vfile-message/-/vfile-message-4.0.2.tgz}
@@ -2780,6 +2832,9 @@ packages:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==, tarball: https://registry.npmjs.org/which/-/which-2.0.2.tgz}
     engines: {node: '>= 8'}
     hasBin: true
+
+  wif@5.0.0:
+    resolution: {integrity: sha512-iFzrC/9ne740qFbNjTZ2FciSRJlHIXoxqk/Y5EnE08QOXu1WjJyCCswwDTYbohAOEnlCtLaAAQBhyaLRFh2hMA==, tarball: https://registry.npmjs.org/wif/-/wif-5.0.0.tgz}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==, tarball: https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.5.tgz}
@@ -3830,6 +3885,22 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
+  base-x@5.0.0: {}
+
+  bip32@5.0.0-rc.0(typescript@5.7.2):
+    dependencies:
+      '@noble/hashes': 1.3.1
+      '@scure/base': 1.1.1
+      uint8array-tools: 0.0.8
+      valibot: 0.37.0(typescript@5.7.2)
+      wif: 5.0.0
+    transitivePeerDependencies:
+      - typescript
+
+  bip39@3.1.0:
+    dependencies:
+      '@noble/hashes': 1.3.1
+
   brace-expansion@1.1.11:
     dependencies:
       balanced-match: 1.0.2
@@ -3853,6 +3924,15 @@ snapshots:
   bs-logger@0.2.6:
     dependencies:
       fast-json-stable-stringify: 2.1.0
+
+  bs58@6.0.0:
+    dependencies:
+      base-x: 5.0.0
+
+  bs58check@4.0.0:
+    dependencies:
+      '@noble/hashes': 1.3.1
+      bs58: 6.0.0
 
   bser@2.1.1:
     dependencies:
@@ -5700,6 +5780,10 @@ snapshots:
       glob: 7.2.3
       minimatch: 3.1.2
 
+  tiny-secp256k1@2.2.3:
+    dependencies:
+      uint8array-tools: 0.0.7
+
   tmpl@1.0.5: {}
 
   to-regex-range@5.0.1:
@@ -5832,6 +5916,10 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
+  uint8array-tools@0.0.7: {}
+
+  uint8array-tools@0.0.8: {}
+
   unbox-primitive@1.0.2:
     dependencies:
       call-bind: 1.0.8
@@ -5880,11 +5968,17 @@ snapshots:
 
   utf8-buffer@1.0.0: {}
 
+  uuid@11.0.5: {}
+
   v8-to-istanbul@9.3.0:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
+
+  valibot@0.37.0(typescript@5.7.2):
+    optionalDependencies:
+      typescript: 5.7.2
 
   vfile-message@4.0.2:
     dependencies:
@@ -5960,6 +6054,10 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
+
+  wif@5.0.0:
+    dependencies:
+      bs58check: 4.0.0
 
   word-wrap@1.2.5: {}
 

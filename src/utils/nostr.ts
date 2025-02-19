@@ -1,122 +1,160 @@
-import { SimplePool, nip59, Event } from 'nostr-tools';
+import { EventEmitter } from 'tseep';
+import { Event as NostrEvent, finalizeEvent, getPublicKey, generateSecretKey, nip19 } from 'nostr-tools';
+import { nip44 } from 'nostr-tools';
+import NDK, { NDKEvent, NDKKind, NDKSubscription } from '@nostr-dev-kit/ndk';
+import { PublicKeyType } from '../client/mostro';
 
-const pool = new SimplePool();
-
-export interface GiftWrapContent {
-  [key: string]: unknown;
+export const NOSTR_REPLACEABLE_EVENT_KIND = 38383 as NDKKind;
+export interface Rumor extends Omit<NostrEvent, 'sig'> {
+  id: string;
 }
 
-interface UnwrapResult {
-  success: boolean;
-  result: GiftWrapContent | Error;
+export interface Seal extends NostrEvent {
+  kind: 13;
 }
 
-/**
- * Publish an event to a specific relay.
- * @param event The event object to publish.
- * @param relayUrl The relay URL to publish the event to.
- */
-export async function publishEvent(event: Event, relayUrl: string): Promise<void> {
-  try {
-    const results = await Promise.all(pool.publish([relayUrl], event));
-
-    const success = results.every((result) => result === 'ok');
-    if (success) {
-      console.log(`Event successfully published to ${relayUrl}`);
-    } else {
-      console.error(`Failed to publish event to some relays.`);
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Error publishing event: ${error.message}`);
-    }
-    throw new Error('Unknown error occurred while publishing event');
-  }
+export interface GiftWrap extends NostrEvent {
+  kind: 1059;
 }
 
-/**
- * Create a wrapped event using NIP-59.
- * @param content The event content.
- * @param senderPrivateKey Sender's private key.
- * @param recipientPublicKey Recipient's public key.
- * @returns A wrapped Nostr event.
- */
-export function createGiftWrapEvent(
-  content: GiftWrapContent,
-  senderPrivateKey: Uint8Array,
-  recipientPublicKey: string,
-): Event {
-  if (!content || Object.keys(content).length === 0) {
-    throw new Error('Content cannot be empty');
-  }
-  if (senderPrivateKey.length !== 32) {
-    throw new Error('Invalid sender private key length');
-  }
-  if (!recipientPublicKey.match(/^[0-9a-f]{64}$/)) {
-    throw new Error('Invalid recipient public key format');
+export type GiftWrapContent = {
+  id: string;
+  pubkey: string;
+  created_at: number;
+  kind: number;
+  tags: string[][];
+  content: string;
+  sig?: string;
+};
+
+export class Nostr extends EventEmitter {
+  private ndk: NDK;
+  private subscriptions: Map<number, NDKSubscription> = new Map();
+  private initialized: boolean = false;
+  private privateKey?: string;
+
+  constructor(
+    private relays: string[],
+    private debug: boolean = false,
+  ) {
+    super();
+    this.ndk = new NDK({
+      explicitRelayUrls: relays,
+    });
+
+    // Set up NDK event handlers
+    this.ndk.pool.on('connect', () => this.emit('ready'));
   }
 
-  try {
-    const rumor = nip59.createRumor(content, senderPrivateKey);
-    const seal = nip59.createSeal(rumor, senderPrivateKey, recipientPublicKey);
-    return nip59.createWrap(seal, recipientPublicKey);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to create gift wrap event: ${error.message}`);
+  async connect(): Promise<void> {
+    if (!this.initialized) {
+      await this.ndk.connect();
+      this.initialized = true;
     }
-    throw new Error('Unknown error occurred while creating gift wrap event');
-  }
-}
-
-/**
- * Unwrap a wrapped event.
- * @param wrappedEvent The wrapped Nostr event.
- * @param recipientPrivateKey Recipient's private key.
- * @returns The unwrapped rumor as GiftWrapContent.
- */
-export function unwrapGiftWrapEvent(wrappedEvent: Event, recipientPrivateKey: Uint8Array): GiftWrapContent {
-  if (!wrappedEvent || wrappedEvent.kind !== 1059) {
-    throw new Error('Invalid wrapped event format');
-  }
-  if (recipientPrivateKey.length !== 32) {
-    throw new Error('Invalid recipient private key length');
   }
 
-  try {
-    return nip59.unwrapEvent(wrappedEvent, recipientPrivateKey);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to unwrap event: ${error.message}`);
+  subscribeOrders(mostroPubKey: string): NDKSubscription {
+    if (!this.initialized) {
+      throw new Error('Nostr not initialized');
     }
-    throw new Error('Unknown error occurred while unwrapping event');
-  }
-}
 
-/**
- * Unwrap multiple wrapped events.
- * @param wrappedEvents Array of wrapped Nostr events.
- * @param recipientPrivateKey Recipient's private key.
- * @returns An array of unwrap results.
- */
-export function unwrapMultipleGiftWrapEvents(wrappedEvents: Event[], recipientPrivateKey: Uint8Array): UnwrapResult[] {
-  if (!Array.isArray(wrappedEvents)) {
-    throw new Error('wrappedEvents must be an array');
-  }
-  if (recipientPrivateKey.length !== 32) {
-    throw new Error('Invalid recipient private key length');
+    const subscription = this.ndk.subscribe(
+      {
+        kinds: [NOSTR_REPLACEABLE_EVENT_KIND],
+        authors: [mostroPubKey],
+        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 14,
+      },
+      { closeOnEose: false },
+    );
+
+    subscription.on('event', (event: NDKEvent) => {
+      this.emit('public-message', event);
+    });
+
+    // Update this line as well
+    this.subscriptions.set(NOSTR_REPLACEABLE_EVENT_KIND, subscription);
+    return subscription;
   }
 
-  return wrappedEvents.map((event) => {
-    try {
-      return {
-        success: true,
-        result: nip59.unwrapEvent(event, recipientPrivateKey),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        result: error instanceof Error ? error : new Error('Unknown error'),
-      };
+  createGiftWrapEvent(content: GiftWrapContent, senderPrivateKey: Uint8Array, recipientPublicKey: string): GiftWrap {
+    const randomPrivKey = generateSecretKey();
+    return finalizeEvent(
+      {
+        kind: 1059,
+        content: this.encryptContent(content, randomPrivKey, recipientPublicKey),
+        created_at: this.randomTimestamp(),
+        tags: [['p', recipientPublicKey]],
+      },
+      randomPrivKey,
+    ) as GiftWrap;
+  }
+
+  private encryptContent(content: object, privateKey: Uint8Array, recipientPublicKey: string): string {
+    const conversationKey = nip44.v2.utils.getConversationKey(privateKey, recipientPublicKey);
+    return nip44.v2.encrypt(JSON.stringify(content), conversationKey);
+  }
+
+  private randomTimestamp(): number {
+    const TWO_DAYS = 2 * 24 * 60 * 60;
+    return Math.floor(Date.now() / 1000 - Math.random() * TWO_DAYS);
+  }
+
+  async publish(event: NostrEvent): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('Nostr not initialized');
     }
-  });
+    const ndkEvent = new NDKEvent(this.ndk, event);
+    await ndkEvent.publish();
+  }
+
+  // New methods required by Mostro client
+  async createAndPublishMostroEvent(payload: any, recipientPublicKey: string): Promise<void> {
+    if (!this.privateKey) {
+      throw new Error('Private key not set');
+    }
+
+    const content: GiftWrapContent = {
+      id: generateSecretKey().toString(),
+      pubkey: getPublicKey(Buffer.from(this.privateKey, 'hex')),
+      created_at: this.randomTimestamp(),
+      kind: 1,
+      tags: [],
+      content: JSON.stringify(payload),
+    };
+
+    const giftWrap = this.createGiftWrapEvent(content, Buffer.from(this.privateKey, 'hex'), recipientPublicKey);
+
+    await this.publish(giftWrap);
+  }
+
+  async sendDirectMessageToPeer(message: string, destination: string, tags: string[][]): Promise<void> {
+    if (!this.privateKey) {
+      throw new Error('Private key not set');
+    }
+
+    const event = finalizeEvent(
+      {
+        kind: 4,
+        created_at: Math.floor(Date.now() / 1000),
+        content: message,
+        tags: [['p', destination], ...tags],
+      },
+      Buffer.from(this.privateKey, 'hex'),
+    );
+
+    await this.publish(event);
+  }
+
+  updatePrivKey(privKey: string): void {
+    this.privateKey = privKey;
+  }
+
+  getMyPubKey(type: PublicKeyType = PublicKeyType.NPUB): string {
+    if (!this.privateKey) {
+      throw new Error('Private key not set');
+    }
+
+    const pubkey = getPublicKey(Buffer.from(this.privateKey, 'hex'));
+    return type === PublicKeyType.NPUB ? nip19.npubEncode(pubkey) : pubkey;
+  }
 }
