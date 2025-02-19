@@ -17,7 +17,7 @@ export function generateOrderTags(order: Partial<Order>): string[][] {
     ['network', 'mainnet'],
     ['layer', 'lightning'],
     ['y', 'mostrop2p'],
-    ['z', 'order']
+    ['z', 'order'],
   ];
 
   // Handle range orders
@@ -37,7 +37,7 @@ export function generateOrderTags(order: Partial<Order>): string[][] {
 export function extractOrderFromEvent(event: NDKEvent): Order | null {
   try {
     // Filtrar y mapear solo los tags que tienen exactamente dos elementos
-    const validTags = event.tags.filter(tag => tag.length === 2);
+    const validTags = event.tags.filter((tag) => tag.length === 2);
     const tags = new Map(validTags as [string, string][]);
 
     // Parse amount information
@@ -66,7 +66,7 @@ export function extractOrderFromEvent(event: NDKEvent): Order | null {
       payment_method: String(tags.get('pm')) || '',
       premium: Number(tags.get('premium')) || 0,
       created_at: event.created_at || Math.floor(Date.now() / 1000),
-      expires_at: Number(tags.get('expiration')) || 0
+      expires_at: Number(tags.get('expiration')) || 0,
     };
   } catch (error) {
     console.error('Error extracting order from event:', error);
@@ -90,7 +90,7 @@ export function prepareNewOrder(newOrder: NewOrder): Order {
     premium: newOrder.premium,
     created_at: Math.floor(Date.now() / 1000),
     expires_at: Math.floor(Date.now() / 1000) + ORDER_EXPIRATION_TIME,
-    buyer_invoice: newOrder.buyer_invoice
+    buyer_invoice: newOrder.buyer_invoice,
   };
 }
 

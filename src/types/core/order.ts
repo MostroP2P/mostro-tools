@@ -2,7 +2,7 @@ import { NDKEvent } from '@nostr-dev-kit/ndk';
 
 export enum OrderType {
   BUY = 'buy',
-  SELL = 'sell'
+  SELL = 'sell',
 }
 
 export enum OrderStatus {
@@ -18,7 +18,7 @@ export enum OrderStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
   WAITING_BUYER_INVOICE = 'waiting-buyer-invoice',
-  WAITING_PAYMENT = 'waiting-payment'
+  WAITING_PAYMENT = 'waiting-payment',
 }
 
 export interface Order {

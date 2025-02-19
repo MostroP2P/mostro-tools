@@ -1,15 +1,7 @@
 import { EventEmitter } from 'tseep';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { Nostr } from '../utils/nostr';
-import {
-  Action,
-  NewOrder,
-  Order,
-  MostroInfo,
-  MostroMessage,
-  OrderStatus,
-  OrderType
-} from '../types/core';
+import { Action, NewOrder, Order, MostroInfo, MostroMessage, OrderStatus, OrderType } from '../types/core';
 import { GiftWrap, Rumor, Seal } from '../types/core/nostr';
 import { extractOrderFromEvent, prepareNewOrder } from '../core/order';
 import { KeyManager } from '../utils/key-manager';
@@ -41,7 +33,7 @@ export interface MostroOptions {
 
 export enum PublicKeyType {
   HEX = 'hex',
-  NPUB = 'npub'
+  NPUB = 'npub',
 }
 
 export class Mostro extends EventEmitter<MostroEvents> {
@@ -90,7 +82,7 @@ export class Mostro extends EventEmitter<MostroEvents> {
   }
 
   private async handlePublicMessage(ev: NDKEvent) {
-    const tags = new Map(ev.tags.map(tag => [tag[0], tag[1]]));
+    const tags = new Map(ev.tags.map((tag) => [tag[0], tag[1]]));
     const type = tags.get('z');
 
     if (type === 'order') {
@@ -159,14 +151,11 @@ export class Mostro extends EventEmitter<MostroEvents> {
         version: 1,
         request_id: requestId,
         action: Action.NewOrder,
-        content: { order }
-      }
+        content: { order },
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -180,14 +169,11 @@ export class Mostro extends EventEmitter<MostroEvents> {
         request_id: requestId,
         action: Action.TakeSell,
         id: order.id,
-        content: amount ? { amount } : null
-      }
+        content: amount ? { amount } : null,
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -201,14 +187,11 @@ export class Mostro extends EventEmitter<MostroEvents> {
         request_id: requestId,
         action: Action.TakeBuy,
         id: order.id,
-        content: amount ? { amount } : null
-      }
+        content: amount ? { amount } : null,
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -223,15 +206,12 @@ export class Mostro extends EventEmitter<MostroEvents> {
         action: Action.AddInvoice,
         id: order.id,
         content: {
-          payment_request: [null, invoice, amount]
-        }
-      }
+          payment_request: [null, invoice, amount],
+        },
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -245,14 +225,11 @@ export class Mostro extends EventEmitter<MostroEvents> {
         request_id: requestId,
         action: Action.Release,
         id: order.id,
-        content: null
-      }
+        content: null,
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -266,14 +243,11 @@ export class Mostro extends EventEmitter<MostroEvents> {
         request_id: requestId,
         action: Action.FiatSent,
         id: order.id,
-        content: null
-      }
+        content: null,
+      },
     };
 
-    await this.nostr.createAndPublishMostroEvent(
-      payload,
-      this.getMostroPublicKey(PublicKeyType.HEX)
-    );
+    await this.nostr.createAndPublishMostroEvent(payload, this.getMostroPublicKey(PublicKeyType.HEX));
 
     return promise;
   }
@@ -319,7 +293,7 @@ export class Mostro extends EventEmitter<MostroEvents> {
     this.pendingRequests.set(requestId, {
       resolve: resolver!,
       reject: rejecter!,
-      timer
+      timer,
     });
 
     return [requestId, promise];
@@ -327,7 +301,7 @@ export class Mostro extends EventEmitter<MostroEvents> {
 
   private extractInfoFromEvent(ev: NDKEvent): MostroInfo | null {
     try {
-      const tags = new Map(ev.tags.map(tag => [tag[0], tag[1]]));
+      const tags = new Map(ev.tags.map((tag) => [tag[0], tag[1]]));
       return {
         mostro_pubkey: tags.get('mostro_pubkey') || '',
         mostro_version: tags.get('mostro_version') || '',
@@ -338,7 +312,7 @@ export class Mostro extends EventEmitter<MostroEvents> {
         expiration_seconds: Number(tags.get('expiration_seconds')) || 900,
         fee: Number(tags.get('fee')) || 0,
         hold_invoice_expiration_window: Number(tags.get('hold_invoice_expiration_window')) || 120,
-        invoice_expiration_window: Number(tags.get('invoice_expiration_window')) || 120
+        invoice_expiration_window: Number(tags.get('invoice_expiration_window')) || 120,
       };
     } catch (error) {
       if (this.options.debug) {

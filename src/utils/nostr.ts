@@ -33,7 +33,10 @@ export class Nostr extends EventEmitter {
   private initialized: boolean = false;
   private privateKey?: string;
 
-  constructor(private relays: string[], private debug: boolean = false) {
+  constructor(
+    private relays: string[],
+    private debug: boolean = false,
+  ) {
     super();
     this.ndk = new NDK({
       explicitRelayUrls: relays,
@@ -59,9 +62,9 @@ export class Nostr extends EventEmitter {
       {
         kinds: [NOSTR_REPLACEABLE_EVENT_KIND],
         authors: [mostroPubKey],
-        since: Math.floor(Date.now() / 1000) - (24 * 60 * 60 * 14)
+        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 14,
       },
-      { closeOnEose: false }
+      { closeOnEose: false },
     );
 
     subscription.on('event', (event: NDKEvent) => {
@@ -71,13 +74,9 @@ export class Nostr extends EventEmitter {
     // Update this line as well
     this.subscriptions.set(NOSTR_REPLACEABLE_EVENT_KIND, subscription);
     return subscription;
-}
+  }
 
-  createGiftWrapEvent(
-    content: GiftWrapContent,
-    senderPrivateKey: Uint8Array,
-    recipientPublicKey: string
-  ): GiftWrap {
+  createGiftWrapEvent(content: GiftWrapContent, senderPrivateKey: Uint8Array, recipientPublicKey: string): GiftWrap {
     const randomPrivKey = generateSecretKey();
     return finalizeEvent(
       {
@@ -86,15 +85,11 @@ export class Nostr extends EventEmitter {
         created_at: this.randomTimestamp(),
         tags: [['p', recipientPublicKey]],
       },
-      randomPrivKey
+      randomPrivKey,
     ) as GiftWrap;
   }
 
-  private encryptContent(
-    content: object,
-    privateKey: Uint8Array,
-    recipientPublicKey: string
-  ): string {
+  private encryptContent(content: object, privateKey: Uint8Array, recipientPublicKey: string): string {
     const conversationKey = nip44.v2.utils.getConversationKey(privateKey, recipientPublicKey);
     return nip44.v2.encrypt(JSON.stringify(content), conversationKey);
   }
@@ -124,14 +119,10 @@ export class Nostr extends EventEmitter {
       created_at: this.randomTimestamp(),
       kind: 1,
       tags: [],
-      content: JSON.stringify(payload)
+      content: JSON.stringify(payload),
     };
 
-    const giftWrap = this.createGiftWrapEvent(
-      content,
-      Buffer.from(this.privateKey, 'hex'),
-      recipientPublicKey
-    );
+    const giftWrap = this.createGiftWrapEvent(content, Buffer.from(this.privateKey, 'hex'), recipientPublicKey);
 
     await this.publish(giftWrap);
   }
@@ -141,12 +132,15 @@ export class Nostr extends EventEmitter {
       throw new Error('Private key not set');
     }
 
-    const event = finalizeEvent({
-      kind: 4,
-      created_at: Math.floor(Date.now() / 1000),
-      content: message,
-      tags: [['p', destination], ...tags],
-    }, Buffer.from(this.privateKey, 'hex'));
+    const event = finalizeEvent(
+      {
+        kind: 4,
+        created_at: Math.floor(Date.now() / 1000),
+        content: message,
+        tags: [['p', destination], ...tags],
+      },
+      Buffer.from(this.privateKey, 'hex'),
+    );
 
     await this.publish(event);
   }
