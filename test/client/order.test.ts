@@ -19,13 +19,15 @@ describe('OrderManager', () => {
       const uninitializedKeyManager = new KeyManager();
       const orderManager = new OrderManager(uninitializedKeyManager);
 
-      await expect(orderManager.createOrder({
-        kind: OrderType.BUY,
-        fiat_code: 'USD',
-        fiat_amount: 100,
-        payment_method: 'bank',
-        premium: 5,
-      })).rejects.toThrow('Key manager not initialized');
+      await expect(
+        orderManager.createOrder({
+          kind: OrderType.BUY,
+          fiat_code: 'USD',
+          fiat_amount: 100,
+          payment_method: 'bank',
+          premium: 5,
+        }),
+      ).rejects.toThrow('Key manager not initialized');
     });
 
     it('should create a buy order with correct properties', async () => {
@@ -234,7 +236,6 @@ describe('OrderManager', () => {
       });
 
       const takenOrder = await orderManager.takeOrder(originalOrder);
-
 
       expect(takenOrder.fiat_code).toBe(originalOrder.fiat_code);
       expect(takenOrder.fiat_amount).toBe(originalOrder.fiat_amount);

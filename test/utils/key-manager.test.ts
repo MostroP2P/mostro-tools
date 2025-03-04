@@ -23,7 +23,7 @@ describe('KeyManager', () => {
     it('should throw error when initializing twice', async () => {
       await keyManager.initialize(testMnemonic);
       await expect(keyManager.initialize(testMnemonic)).rejects.toThrow(
-        new KeyManagerError('KeyManager already initialized', 'ALREADY_INITIALIZED')
+        new KeyManagerError('KeyManager already initialized', 'ALREADY_INITIALIZED'),
       );
     });
 
@@ -52,7 +52,6 @@ describe('KeyManager', () => {
       expect(typeof tradeKey).toBe('string');
       expect(tradeKey).toHaveLength(64);
 
-
       const retrievedKey = keyManager.getTradeKey(orderId);
       expect(retrievedKey).toBe(tradeKey);
     });
@@ -70,7 +69,6 @@ describe('KeyManager', () => {
 
       expect(publicKey).toBeDefined();
       expect(publicKey).toHaveLength(64);
-
 
       const expectedPublicKey = getPublicKey(Buffer.from(privateKey, 'hex'));
       expect(publicKey).toBe(expectedPublicKey);
@@ -135,19 +133,19 @@ describe('KeyManager', () => {
   describe('error handling', () => {
     it('should throw error when accessing identity key before initialization', () => {
       expect(() => keyManager.getIdentityKey()).toThrow(
-        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED')
+        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED'),
       );
     });
 
     it('should throw error when generating trade key before initialization', async () => {
       await expect(keyManager.generateTradeKey('test-order')).rejects.toThrow(
-        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED')
+        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED'),
       );
     });
 
     it('should throw error when getting key by index before initialization', async () => {
       await expect(keyManager.getKeyByIndex(1)).rejects.toThrow(
-        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED')
+        new KeyManagerError('Key manager not initialized', 'NOT_INITIALIZED'),
       );
     });
   });
