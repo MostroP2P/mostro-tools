@@ -79,7 +79,7 @@ describe('Mostro', () => {
             id: orderId,
             action: action,
             created_at: Date.now(),
-          }
+          },
         };
         return Promise.resolve(mockResponse);
       });
@@ -116,10 +116,10 @@ describe('Mostro', () => {
       expect(mockNostr.createAndPublishMostroEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           order: expect.objectContaining({
-            content: { amount: 15 }
-          })
+            content: { amount: 15 },
+          }),
         }),
-        expect.any(String)
+        expect.any(String),
       );
       expect(response.order?.action).toBe(Action.TakeSell);
     });
@@ -141,11 +141,11 @@ describe('Mostro', () => {
           order: expect.objectContaining({
             action: Action.AddInvoice,
             content: {
-              payment_request: [null, invoice, null]
-            }
-          })
+              payment_request: [null, invoice, null],
+            },
+          }),
         }),
-        expect.any(String)
+        expect.any(String),
       );
       expect(response.order?.action).toBe(Action.AddInvoice);
     });
@@ -159,11 +159,11 @@ describe('Mostro', () => {
         expect.objectContaining({
           order: expect.objectContaining({
             content: {
-              payment_request: [null, invoice, amount]
-            }
-          })
+              payment_request: [null, invoice, amount],
+            },
+          }),
         }),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -174,10 +174,10 @@ describe('Mostro', () => {
         expect.objectContaining({
           order: expect.objectContaining({
             action: Action.Release,
-            id: mockOrder.id
-          })
+            id: mockOrder.id,
+          }),
         }),
-        expect.any(String)
+        expect.any(String),
       );
       expect(response.order?.action).toBe(Action.Release);
     });
@@ -189,10 +189,10 @@ describe('Mostro', () => {
         expect.objectContaining({
           order: expect.objectContaining({
             action: Action.FiatSent,
-            id: mockOrder.id
-          })
+            id: mockOrder.id,
+          }),
         }),
-        expect.any(String)
+        expect.any(String),
       );
       expect(response.order?.action).toBe(Action.FiatSent);
     });
@@ -322,18 +322,21 @@ describe('Mostro', () => {
       // Simulate info update
       mostro['handlePublicMessage'](mockEvent);
 
-      expect(infoUpdateSpy).toHaveBeenCalledWith('info-update', expect.objectContaining({
-        mostro_pubkey: 'test-pubkey',
-        mostro_version: '1.0.0',
-        mostro_commit_id: 'abc123',
-        max_order_amount: 1000000,
-        min_order_amount: 1000,
-        expiration_hours: 24,
-        expiration_seconds: 900,
-        fee: 0.01,
-        hold_invoice_expiration_window: 120,
-        invoice_expiration_window: 120,
-      }));
+      expect(infoUpdateSpy).toHaveBeenCalledWith(
+        'info-update',
+        expect.objectContaining({
+          mostro_pubkey: 'test-pubkey',
+          mostro_version: '1.0.0',
+          mostro_commit_id: 'abc123',
+          max_order_amount: 1000000,
+          min_order_amount: 1000,
+          expiration_hours: 24,
+          expiration_seconds: 900,
+          fee: 0.01,
+          hold_invoice_expiration_window: 120,
+          invoice_expiration_window: 120,
+        }),
+      );
     });
 
     it('should handle private messages and pending requests', async () => {
@@ -350,7 +353,7 @@ describe('Mostro', () => {
             request_id: 123,
             action: Action.NewOrder,
             created_at: Date.now(),
-          }
+          },
         }),
       };
 
@@ -480,7 +483,7 @@ describe('Mostro', () => {
           id: orderId,
           action: action,
           created_at: Date.now(),
-        }
+        },
       };
 
       // Simulate the message event
@@ -507,7 +510,7 @@ describe('Mostro', () => {
           id: orderId,
           action: Action.TakeBuy, // Different action
           created_at: Date.now(),
-        }
+        },
       };
 
       // Emit a non-matching ID
@@ -517,7 +520,7 @@ describe('Mostro', () => {
           id: 'wrong-id', // Different ID
           action: action,
           created_at: Date.now(),
-        }
+        },
       };
 
       // Simulate the message events
@@ -602,18 +605,20 @@ describe('Mostro', () => {
 
       const info = mostro['extractInfoFromEvent'](mockEvent);
 
-      expect(info).toEqual(expect.objectContaining({
-        mostro_pubkey: 'test-pubkey',
-        mostro_version: '1.0.0',
-        mostro_commit_id: '',
-        max_order_amount: 0,
-        min_order_amount: 0,
-        expiration_hours: 24, // Default
-        expiration_seconds: 900, // Default
-        fee: 0,
-        hold_invoice_expiration_window: 120, // Default
-        invoice_expiration_window: 120, // Default
-      }));
+      expect(info).toEqual(
+        expect.objectContaining({
+          mostro_pubkey: 'test-pubkey',
+          mostro_version: '1.0.0',
+          mostro_commit_id: '',
+          max_order_amount: 0,
+          min_order_amount: 0,
+          expiration_hours: 24, // Default
+          expiration_seconds: 900, // Default
+          fee: 0,
+          hold_invoice_expiration_window: 120, // Default
+          invoice_expiration_window: 120, // Default
+        }),
+      );
     });
 
     it('should handle errors in extraction', () => {
