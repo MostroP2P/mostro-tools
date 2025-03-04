@@ -92,7 +92,7 @@ describe('Nostr', () => {
           authors: [mostroPublicKey],
           since: expect.any(Number),
         },
-        { closeOnEose: false }
+        { closeOnEose: false },
       );
     });
 
@@ -112,7 +112,7 @@ describe('Nostr', () => {
       nostr.subscribeOrders('test-pubkey');
 
       // Find and call the event handler
-      const eventHandler = mockSubscription.on.mock.calls.find(call => call[0] === 'event')[1];
+      const eventHandler = mockSubscription.on.mock.calls.find((call) => call[0] === 'event')[1];
       eventHandler(mockEvent);
 
       // Should emit public-message event
@@ -312,7 +312,7 @@ describe('Nostr', () => {
             ['p', destination],
             ['test', 'tag'],
           ]),
-        })
+        }),
       );
     });
   });

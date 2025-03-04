@@ -15,7 +15,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order)).toThrow(
-        new ValidationError('Minimum amount must be less than maximum amount', 'INVALID_RANGE')
+        new ValidationError('Minimum amount must be less than maximum amount', 'INVALID_RANGE'),
       );
     });
 
@@ -31,11 +31,11 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order1)).toThrow(
-        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE')
+        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE'),
       );
 
       expect(() => validateAmountConstraints(order2)).toThrow(
-        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE')
+        new ValidationError('Range amounts cannot be negative', 'NEGATIVE_RANGE'),
       );
     });
 
@@ -47,7 +47,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateAmountConstraints(order)).toThrow(
-        new ValidationError('Range orders must have amount set to 0', 'INVALID_AMOUNT_FOR_RANGE')
+        new ValidationError('Range orders must have amount set to 0', 'INVALID_AMOUNT_FOR_RANGE'),
       );
     });
 
@@ -79,7 +79,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateMarketPriceOrder(order)).toThrow(
-        new ValidationError('Market price orders must specify either premium or fiat amount', 'INVALID_MARKET_PRICE')
+        new ValidationError('Market price orders must specify either premium or fiat amount', 'INVALID_MARKET_PRICE'),
       );
     });
 
@@ -150,7 +150,7 @@ describe('Validation Utils', () => {
       const { fiat_code, ...orderNoFiatCode } = validOrderBase;
 
       expect(() => validateOrder(orderNoFiatCode)).toThrow(
-        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE')
+        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE'),
       );
     });
 
@@ -161,7 +161,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(invalidOrder)).toThrow(
-        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE')
+        new ValidationError('Order must have a valid fiat_code', 'INVALID_FIAT_CODE'),
       );
     });
 
@@ -169,7 +169,7 @@ describe('Validation Utils', () => {
       const { payment_method, ...orderNoPaymentMethod } = validOrderBase;
 
       expect(() => validateOrder(orderNoPaymentMethod)).toThrow(
-        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD')
+        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD'),
       );
     });
 
@@ -180,7 +180,7 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(invalidOrder)).toThrow(
-        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD')
+        new ValidationError('Order must have a valid payment_method', 'INVALID_PAYMENT_METHOD'),
       );
     });
 
@@ -196,11 +196,11 @@ describe('Validation Utils', () => {
       };
 
       expect(() => validateOrder(orderWithHighPremium)).toThrow(
-        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM')
+        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM'),
       );
 
       expect(() => validateOrder(orderWithNegativePremium)).toThrow(
-        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM')
+        new ValidationError('Order premium must be between 0 and 100', 'INVALID_PREMIUM'),
       );
     });
 
@@ -230,8 +230,14 @@ describe('Validation Utils', () => {
 
     it('should run all validation steps', () => {
       // Use spies to verify all validators are called
-      const validateAmountConstraintsSpy = jest.spyOn(require('../../src/utils/validations'), 'validateAmountConstraints');
-      const validateMarketPriceOrderSpy = jest.spyOn(require('../../src/utils/validations'), 'validateMarketPriceOrder');
+      const validateAmountConstraintsSpy = jest.spyOn(
+        require('../../src/utils/validations'),
+        'validateAmountConstraints',
+      );
+      const validateMarketPriceOrderSpy = jest.spyOn(
+        require('../../src/utils/validations'),
+        'validateMarketPriceOrder',
+      );
 
       validateOrder(validOrderBase);
 

@@ -62,7 +62,7 @@ describe('Core Order Functions', () => {
       };
 
       const tags = generateOrderTags(order);
-      const expirationTag = tags.find(tag => tag[0] === 'expiration');
+      const expirationTag = tags.find((tag) => tag[0] === 'expiration');
 
       expect(expirationTag).toBeDefined();
       expect(expirationTag![1]).toMatch(/^\d+$/); // Should be a numeric timestamp
