@@ -1,85 +1,197 @@
 # @mostrop2p/mostro-tools
 
-## Tools for developing Mostro clients
+## Tools for building Mostro Clients
 
-`@mostrop2p/mostro-tools` is a lightweight and extensible library designed to simplify the development of Mostro clients. It provides low-level functionality for interacting with the Mostro protocol, including order management, messaging, dispute resolution, and more.
+`@mostrop2p/mostro-tools` is a modern TypeScript library that simplifies building applications on the [Mostro P2P protocol](https://mostro.network/). It provides developers with a complete toolkit for creating decentralized, non-custodial Bitcoin trading platforms with Lightning Network support.
 
-This library is ideal for developers building decentralized peer-to-peer Bitcoin trading platforms powered by the [Mostro protocol](https://mostro.network/).
-
----
-
-## **Features**
-
-- **Core Protocol Support**: Implements fundamental Mostro operations such as order creation, dispute handling, and messaging.
-- **Flexible Client Integration**: Designed for easy integration with relays and Mostro-compatible clients.
-- **Secure Key Management**: Supports NIP-06 and NIP-59 for deterministic key generation and privacy-focused operations.
-- **Customizable Configurations**: Offers private mode and advanced options for reputation handling.
-- **Developer-Friendly**: Written in TypeScript with comprehensive type definitions and modular architecture.
+[![npm version](https://img.shields.io/npm/v/@mostrop2p/mostro-tools.svg)](https://www.npmjs.com/package/@mostrop2p/mostro-tools)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![test coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://mostrop2p.github.io/mostro-tools/coverage)
 
 ---
 
-## **Installation**
+## Features
 
-Using [pnpm](https://pnpm.io/):
+- **📦 Complete Protocol Implementation**: Full support for the Mostro protocol including orders, messaging, and disputes
+- **⚡ Lightning Network Integration**: Built-in utilities for invoice generation and payment handling
+- **🔒 Advanced Key Management**: Secure, deterministic key derivation (BIP-39/BIP-32) and rotation
+- **🔐 Encrypted Communications**: NIP-44 and NIP-59 support for private messaging
+- **📊 Order Management**: Comprehensive tools for creating, listing and executing trades
+- **🛡️ Dispute Resolution**: Built-in support for handling trade disputes
+- **⭐ Reputation System**: Tools for implementing user ratings and reputation tracking
+- **🧩 Modular Architecture**: Extensible design allowing custom implementations and plugins
+
+---
+
+## Installation
 
 ```bash
-pnpm install @mostrop2p/mostro-tools
+# Using npm
+npm install @mostrop2p/mostro-tools
+
+# Using yarn
+yarn add @mostrop2p/mostro-tools
+
+# Using pnpm
+pnpm add @mostrop2p/mostro-tools
 ```
 
 ---
 
-## **Roadmap**
+## Quick Start
 
-### **Core Implementation**
+```typescript
+import { Mostro, KeyManager } from '@mostrop2p/mostro-tools';
+import { generateMnemonic } from 'bip39';
 
-Development of foundational modules to enable Mostro protocol interactions:
+async function main() {
+  // Initialize key manager with a mnemonic phrase
+  const mnemonic = generateMnemonic();
+  const keyManager = new KeyManager();
+  await keyManager.initialize(mnemonic);
 
-- **Key Management**: Deterministic key generation (NIP-06) and rotation (NIP-59).
-- **Order Management**: Create, list, take, and cancel orders.
-- **Messaging**: Handle direct messages, confirmations, and encrypted communication.
-- **Dispute Resolution**: Initiate and manage disputes.
-- **Reputation Handling**: Implement rating and reputation updates.
+  // Create and configure Mostro client
+  const mostro = new Mostro({
+    mostroPubKey: 'npub1...', // Mostro instance pubkey
+    relays: ['wss://relay.damus.io', 'wss://relay.nostr.info'],
+    privateKey: keyManager.getIdentityKey()!,
+    debug: true,
+  });
 
----
+  // Connect to Mostro network
+  await mostro.connect();
+  console.log('Connected to Mostro network');
 
-### **Client Features**
+  // Get active orders
+  const orders = await mostro.getActiveOrders();
+  console.log(`Found ${orders.length} active orders`);
 
-Expand library capabilities with client-side utilities:
+  // Create a new sell order
+  const sellOrder = await mostro.submitOrder({
+    kind: 'sell',
+    status: 'pending',
+    amount: 50000, // 50,000 sats
+    fiat_code: 'USD',
+    fiat_amount: 25, // $25 USD
+    payment_method: 'BANK',
+    premium: 2, // 2% premium
+  });
 
-- **Order Functions**:
-  - List open orders (`listorders`).
-  - Create new buy/sell orders (`neworder`).
-  - Take orders (`takesell`, `takebuy`).
-  - Cancel pending orders (`cancel`).
-- **Messaging Functions**:
-  - Add invoices (`addinvoice`).
-  - Confirm fiat payments (`fiatsent`).
-  - Settle transactions (`release`).
-- **Administrative Tools**:
-  - Cancel orders as admin (`admcancel`).
-  - Resolve disputes as admin (`admsettle`).
-- **Privacy Features**:
-  - Private mode to ensure full anonymity without affecting usability.
+  console.log(`Order created with ID: ${sellOrder.order?.id}`);
+}
 
----
-
-## **Goals**
-
-1. **Ease of Use**: Abstract complexities of the Mostro protocol, providing simple and intuitive APIs.
-2. **Security First**: Adhere to best practices for cryptographic operations and data integrity.
-3. **Scalability**: Design with modularity and extensibility to support future protocol updates.
-4. **Community Support**: Enable seamless contribution through clear documentation and developer tools.
-
----
-
-## **Get Involved**
-
-- **Website**: [mostro.network](https://mostro.network/)
-- **Report Issues**: [GitHub Issues](https://github.com/MostroP2P/mostro-tools/issues)
-- **Contribute**: Contributions are welcome! Follow the [Contribution Guidelines](https://github.com/MostroP2P/mostro-tools).
+main().catch(console.error);
+```
 
 ---
 
-## **License**
+## Core Components
 
-`@mostrop2p/mostro-tools` is licensed under the MIT License. See the [LICENSE](https://github.com/MostroP2P/mostro-tools/blob/main/LICENSE) file for details.
+### Mostro Client
+
+The main interface for interacting with the Mostro network:
+
+```typescript
+// Initialize client
+const mostro = new Mostro({
+  mostroPubKey: 'npub1...', // Mostro instance pubkey
+  relays: ['wss://relay.damus.io'],
+  privateKey: keyManager.getIdentityKey()!,
+});
+
+// Connect to network
+await mostro.connect();
+
+// Listen for order updates
+mostro.on('order-update', (order, event) => {
+  console.log('Order updated:', order);
+});
+```
+
+### Key Management
+
+Secure key derivation and management:
+
+```typescript
+// Initialize with mnemonic
+const keyManager = new KeyManager();
+await keyManager.initialize('your mnemonic phrase here');
+
+// Get identity key
+const identityKey = keyManager.getIdentityKey();
+
+// Generate trade key for a specific order
+const tradeKey = await keyManager.generateTradeKey('order-id');
+```
+
+### Order Operations
+
+Complete order lifecycle management:
+
+```typescript
+// List active orders
+const orders = await mostro.getActiveOrders();
+
+// Take a sell order
+await mostro.takeSell(order);
+
+// Add invoice for payment
+await mostro.addInvoice(order, 'lnbc500...');
+
+// Confirm fiat payment sent
+await mostro.fiatSent(order);
+
+// Release funds (for seller)
+await mostro.release(order);
+```
+
+---
+
+## Examples
+
+Check out the `examples` directory for complete usage examples:
+
+- [Basic Connection](examples/01-basic-connection.ts) - Connect to Mostro network
+- [List Orders](examples/02-list-orders.ts) - Query and display active orders
+- [Create Sell Order](examples/03-create-sell-order.ts) - Create a new sell order
+
+Run examples with:
+
+```bash
+# Run basic connection example
+npx tsx examples/01-basic-connection.ts
+```
+
+---
+
+## Documentation
+
+- [API Reference](https://mostrop2p.github.io/mostro-tools/api) - Detailed API documentation
+- [Protocol Guide](https://mostro.network/protocol/) - Mostro protocol documentation
+- [Examples](examples/) - Usage examples
+
+---
+
+## Contributing
+
+Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md).
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Resources
+
+- [Mostro Website](https://mostro.network)
+- [Mostro Protocol Documentation](https://mostro.network/protocol/)
+- [GitHub Repository](https://github.com/MostroP2P/mostro-tools)
