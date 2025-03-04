@@ -1,5 +1,3 @@
-// test/utils/crypto.test.ts
-
 import { CryptoUtils, KeyPair } from '../../src/utils/crypto';
 import { nip19, getPublicKey } from 'nostr-tools';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
